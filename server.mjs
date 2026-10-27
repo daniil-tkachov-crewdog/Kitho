@@ -40,9 +40,12 @@ createServer(async (req, res) => {
     'Referrer-Policy': 'strict-origin-when-cross-origin',
     'Cache-Control': urlPath.startsWith('/assets/') ? 'public, max-age=31536000, immutable' : 'no-cache',
   }
+  let body
   try {
-    res.writeHead(200, headers).end(await readFile(file))
+    body = await readFile(file)
   } catch {
-    res.writeHead(500).end('Server error')
+    res.writeHead(503, { 'Content-Type': 'text/plain' }).end('Site is not built yet.')
+    return
   }
+  res.writeHead(200, headers).end(body)
 }).listen(port, () => console.log(`Kitho listening on ${port}`))
