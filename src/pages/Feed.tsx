@@ -119,22 +119,24 @@ export default function Feed() {
 
   return (
     <div className="feed-wrap">
-      {error && <div className="alert alert-error" style={{ maxWidth: 420, width: '100%' }}>{error}</div>}
+      {error && <div className="alert alert-error">{error}</div>}
       <article className="profile-card">
         <PhotoCarousel urls={urls} alt={current.name} />
-        <div className="profile-meta">
-          <h2>{current.name}, <span>{current.age}</span></h2>
-          <div className="loc"><PinIcon /> {current.location}</div>
-          {current.description && <p className="bio">{current.description}</p>}
-        </div>
-        <div className="actions">
-          <button className="btn btn-ghost" onClick={next}>Sweep</button>
-          <button className={`btn btn-ghost action-like${liked ? ' on' : ''}`} onClick={onLike} disabled={busy || liked}>
-            <HeartIcon className="" /> {liked ? 'Liked' : 'Like'}
-          </button>
-          <button className="btn btn-primary" onClick={() => setMsgOpen(true)} disabled={messaged}>
-            {messaged ? 'Sent' : 'Message'}
-          </button>
+        <div className="profile-body">
+          <div className="profile-meta">
+            <h2>{current.name}, <span>{current.age}</span></h2>
+            <div className="loc"><PinIcon /> {current.location}</div>
+            {current.description && <p className="bio">{current.description}</p>}
+          </div>
+          <div className="actions">
+            <button className="btn btn-ghost" onClick={next}>Sweep</button>
+            <button className={`btn btn-ghost action-like${liked ? ' on' : ''}`} onClick={onLike} disabled={busy || liked}>
+              <HeartIcon className="" /> {liked ? 'Liked' : 'Like'}
+            </button>
+            <button className="btn btn-primary" onClick={() => setMsgOpen(true)} disabled={messaged}>
+              {messaged ? 'Sent' : 'Message'}
+            </button>
+          </div>
         </div>
       </article>
       {msgOpen && (

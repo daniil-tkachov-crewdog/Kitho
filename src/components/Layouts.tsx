@@ -2,6 +2,7 @@ import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom'
 import { isProfileComplete, useAuth } from '../lib/auth'
 import Logo from './Logo'
 import Footer from './Footer'
+import { CompassIcon, InboxIcon, UserIcon } from './Icons'
 
 /** Public pages: logo left, Log in / Sign up (or "Open app") right. */
 export function PublicLayout() {
@@ -39,14 +40,14 @@ export function AppLayout() {
   }
 
   return (
-    <div className="page">
+    <div className="page app">
       <header className="header">
         <div className="container">
           <Logo to="/feed" />
           <nav className="nav" aria-label="Main">
-            <NavLink to="/feed" className="navlink">Discover</NavLink>
-            <NavLink to="/inbox" className="navlink">Inbox</NavLink>
-            <NavLink to="/profile" className="navlink">Profile</NavLink>
+            <NavLink to="/feed" className="navlink"><CompassIcon /><span>Discover</span></NavLink>
+            <NavLink to="/inbox" className="navlink"><InboxIcon /><span>Inbox</span></NavLink>
+            <NavLink to="/profile" className="navlink"><UserIcon /><span>Profile</span></NavLink>
           </nav>
         </div>
       </header>

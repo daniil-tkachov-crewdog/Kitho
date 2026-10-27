@@ -105,19 +105,19 @@ export default function Profile() {
   const ro = !editing || busy
 
   return (
-    <div className="container narrow">
+    <div className="container profile-page">
       <form onSubmit={onSave}>
         <div className="page-head">
           <h1>{profile ? 'My profile' : 'Create your profile'}</h1>
           <div className="row">
-            <Link to="/settings" className="btn btn-ghost">Settings</Link>
+            <Link to="/settings" className="btn btn-ghost btn-sm">Settings</Link>
             {editing ? (
               <>
-                {profile && <button type="button" className="btn btn-ghost" onClick={onCancel} disabled={busy}>Cancel</button>}
-                <button className="btn btn-primary" disabled={busy}>{busy ? 'Saving…' : 'Save'}</button>
+                {profile && <button type="button" className="btn btn-ghost btn-sm" onClick={onCancel} disabled={busy}>Cancel</button>}
+                <button className="btn btn-primary btn-sm" disabled={busy}>{busy ? 'Saving…' : 'Save'}</button>
               </>
             ) : (
-              <button type="button" className="btn btn-primary" onClick={() => { setSaved(false); setEditing(true) }}>Edit</button>
+              <button type="button" className="btn btn-primary btn-sm" onClick={() => { setSaved(false); setEditing(true) }}>Edit</button>
             )}
           </div>
         </div>
@@ -126,66 +126,90 @@ export default function Profile() {
         {saved && <div className="alert alert-ok">Profile saved.</div>}
         {error && <div className="alert alert-error">{error}</div>}
 
-        <div className="panel" style={{ marginBottom: 48 }}>
-          <div className="field"><label>Photos <span className="hint">(1–3, first one is your main photo)</span></label></div>
-          <div className="photo-slots">
-            {slots.map((slot, i) => (
-              <div key={i} className={`slot${slot ? ' filled' : ''}`}>
-                {slot ? (
-                  <>
-                    {slot.url && <img src={slot.url} alt={`Your photo ${i + 1}`} />}
-                    {i === 0 && <span className="badge">Main</span>}
-                    {editing && (
-                      <div className="slot-actions">
-                        <label className="btn btn-sm">
-                          Replace
-                          <input type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={(e) => pickPhoto(i, e.target.files?.[0])} />
-                        </label>
-                        <button type="button" className="btn btn-sm" onClick={() => removePhoto(i)}>Remove</button>
-                      </div>
-                    )}
-                  </>
-                ) : editing ? (
-                  <label className="add">
-                    <span style={{ fontSize: '2rem', lineHeight: 1 }}>+</span>
-                    <span>Add photo</span>
-                    <input type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={(e) => pickPhoto(i, e.target.files?.[0])} />
-                  </label>
-                ) : (
-                  <span>Empty</span>
-                )}
-              </div>
-            ))}
-          </div>
+        <div className="profile-grid">
+          <section className="panel photos-card">
+            <div className="field"><label>Photos <span className="hint">(1–3, first one is your main photo)</span></label></div>
+            <div className="photo-slots">
+              {slots.map((slot, i) => (
+                <div key={i} className={`slot${slot ? ' filled' : ''}`}>
+                  {slot ? (
+                    <>
+                      {slot.url && <img src={slot.url} alt={`Your photo ${i + 1}`} />}
+                      {i === 0 && <span className="badge">Main</span>}
+                      {editing && (
+                        <div className="slot-actions">
+                          <label className="btn btn-sm">
+                            Replace
+                            <input type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={(e) => pickPhoto(i, e.target.files?.[0])} />
+                          </label>
+                          <button type="button" className="btn btn-sm" onClick={() => removePhoto(i)}>Remove</button>
+                        </div>
+                      )}
+                    </>
+                  ) : editing ? (
+                    <label className="add">
+                      <span className="plus">+</span>
+                      <span>Add photo</span>
+                      <input type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={(e) => pickPhoto(i, e.target.files?.[0])} />
+                    </label>
+                  ) : (
+                    <span>Empty</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
 
-          <div className="grid-2">
-            <div className="field">
-              <label htmlFor="name">Name</label>
-              <input id="name" className="input" maxLength={50} value={name} onChange={(e) => setName(e.target.value)} disabled={ro} required />
-            </div>
-            <div className="field">
-              <label htmlFor="age">Age</label>
-              <input id="age" className="input" type="number" min={1} max={120} value={age} onChange={(e) => setAge(e.target.value)} disabled={ro} required />
-            </div>
-          </div>
-          <div className="field">
-            <label htmlFor="location">Location</label>
-            <input id="location" className="input" maxLength={100} placeholder="City, Country" value={location} onChange={(e) => setLocation(e.target.value)} disabled={ro} required />
-          </div>
-          <div className="field">
-            <label htmlFor="description">About me</label>
-            <textarea id="description" className="textarea" maxLength={1000} value={description} onChange={(e) => setDescription(e.target.value)} disabled={ro} placeholder="A few words about you…" />
-          </div>
+          <div className="profile-col">
+            {editing ? (
+              <section className="panel">
+                <div className="grid-2">
+                  <div className="field">
+                    <label htmlFor="name">Name</label>
+                    <input id="name" className="input" maxLength={50} value={name} onChange={(e) => setName(e.target.value)} disabled={ro} required />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="age">Age</label>
+                    <input id="age" className="input" type="number" min={1} max={120} value={age} onChange={(e) => setAge(e.target.value)} disabled={ro} required />
+                  </div>
+                </div>
+                <div className="field">
+                  <label htmlFor="location">Location</label>
+                  <input id="location" className="input" maxLength={100} placeholder="City, Country" value={location} onChange={(e) => setLocation(e.target.value)} disabled={ro} required />
+                </div>
+                <div className="field">
+                  <label htmlFor="description">About me</label>
+                  <textarea id="description" className="textarea" maxLength={1000} value={description} onChange={(e) => setDescription(e.target.value)} disabled={ro} placeholder="A few words about you…" />
+                </div>
+              </section>
+            ) : (
+              <section className="panel info-rows">
+                <div className="info-row"><span>Name</span><strong>{name}</strong></div>
+                <div className="info-row"><span>Age</span><strong>{age}</strong></div>
+                <div className="info-row"><span>Location</span><strong>{location}</strong></div>
+                <div className="info-row stack"><span>About me</span><p>{description || '—'}</p></div>
+              </section>
+            )}
 
-          <div className="private-box">
-            <h3><LockIcon /> Private — only you can see this</h3>
-            <div className="field">
-              <label htmlFor="email">Email</label>
-              <input id="email" className="input" value={session!.user.email ?? ''} disabled />
-            </div>
-            <div className="field">
-              <label htmlFor="phone">Phone <span className="hint">(optional)</span></label>
-              <input id="phone" className="input" type="tel" maxLength={30} value={phone} onChange={(e) => setPhone(e.target.value)} disabled={ro} />
+            <div className={`private-box${editing ? '' : ' info-rows'}`}>
+              <h3><LockIcon /> Private — only you can see this</h3>
+              {editing ? (
+                <>
+                  <div className="field">
+                    <label htmlFor="email">Email</label>
+                    <input id="email" className="input" value={session!.user.email ?? ''} disabled />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="phone">Phone <span className="hint">(optional)</span></label>
+                    <input id="phone" className="input" type="tel" maxLength={30} value={phone} onChange={(e) => setPhone(e.target.value)} disabled={ro} />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="info-row"><span>Email</span><strong>{session!.user.email ?? ''}</strong></div>
+                  <div className="info-row"><span>Phone <span className="hint">(optional)</span></span><strong>{phone || '—'}</strong></div>
+                </>
+              )}
             </div>
           </div>
         </div>

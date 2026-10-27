@@ -20,6 +20,24 @@ export const PinIcon = ({ className }: P) => (
 export const LockIcon = ({ className }: P) => (
   <svg viewBox="0 0 24 24" width="16" height="16" className={className} {...base}><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>
 )
+export const ArrowRightIcon = ({ className }: P) => (
+  <svg viewBox="0 0 24 24" className={className} {...base}><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+)
+export const ChevronLeftIcon = ({ className }: P) => (
+  <svg viewBox="0 0 24 24" className={className} {...base}><path d="M15 6l-6 6 6 6" /></svg>
+)
+export const ChevronRightIcon = ({ className }: P) => (
+  <svg viewBox="0 0 24 24" className={className} {...base}><path d="M9 6l6 6-6 6" /></svg>
+)
+export const CompassIcon = ({ className }: P) => (
+  <svg viewBox="0 0 24 24" className={className} {...base}><circle cx="12" cy="12" r="9" /><path d="M15.5 8.5l-2 5-5 2 2-5 5-2z" /></svg>
+)
+export const InboxIcon = ({ className }: P) => (
+  <svg viewBox="0 0 24 24" className={className} {...base}><path d="M4 13l2.5-7h11L20 13v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-5z" /><path d="M4 13h4.5l1 2h5l1-2H20" /></svg>
+)
+export const UserIcon = ({ className }: P) => (
+  <svg viewBox="0 0 24 24" className={className} {...base}><circle cx="12" cy="8" r="4" /><path d="M4 20c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5" /></svg>
+)
 export const GoogleIcon = () => (
   <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.6 12.3c0-.8-.1-1.6-.2-2.3H12v4.4h5.9a5 5 0 0 1-2.2 3.3v2.7h3.6c2.1-1.9 3.3-4.8 3.3-8.1z" /><path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.6-2.7c-1 .7-2.2 1.1-3.7 1.1-2.9 0-5.3-1.9-6.2-4.5H2.1v2.8A11 11 0 0 0 12 23z" /><path fill="#FBBC05" d="M5.8 14.2a6.6 6.6 0 0 1 0-4.3V7.1H2.1a11 11 0 0 0 0 9.9l3.7-2.8z" /><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.2-3.2A11 11 0 0 0 2.1 7.1l3.7 2.8C6.7 7.3 9.1 5.4 12 5.4z" /></svg>
 )

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { GiftIcon, InfinityIcon, PinIcon, ShieldIcon } from '../components/Icons'
+import { ArrowRightIcon, GiftIcon, InfinityIcon, PinIcon, ShieldIcon } from '../components/Icons'
 
 // Example profiles for the landing page only — not real users.
 const SAMPLES = [
@@ -47,13 +47,16 @@ export default function Home() {
     <>
       <section className="hero">
         <div className="container">
-          <div>
+          <div className="hero-copy">
+            <span className="eyebrow"><i aria-hidden />Free dating · one profile per person</span>
             <h1>Meet people. <em>No algorithms.</em> No paywalls.</h1>
             <p className="lead">
               One profile per person. Browse everyone, like anyone, send a hello. Kitho is free — for real, for everyone.
             </p>
-            <Link to="/auth?mode=signup" className="btn btn-primary btn-lg">Create your free profile</Link>
-            <p className="hero-note">Takes about two minutes. Just your email.</p>
+            <div className="hero-cta">
+              <Link to="/auth?mode=signup" className="btn btn-primary btn-lg">Create your free profile <ArrowRightIcon /></Link>
+              <p className="hero-note">Takes about two minutes. Just your email.</p>
+            </div>
           </div>
           <div className="hero-art" aria-hidden>
             <SampleCard s={SAMPLES[0]} className="card-float" />
@@ -65,8 +68,10 @@ export default function Home() {
 
       <section className="section section-alt">
         <div className="container">
-          <h2 className="section-title">Why Kitho</h2>
-          <p className="section-sub">Dating the simple way — the way it should have been from the start.</p>
+          <div className="section-head split">
+            <h2 className="section-title">Why Kitho</h2>
+            <p className="section-sub">Dating the simple way — the way it should have been from the start.</p>
+          </div>
           <div className="features">
             {FEATURES.map(({ icon: Icon, title, text }) => (
               <div className="feature" key={title}>
@@ -81,8 +86,10 @@ export default function Home() {
 
       <section className="section">
         <div className="container">
-          <h2 className="section-title">See who's here</h2>
-          <p className="section-sub">Profiles look like this: photos, name, age, where they are, and a few words about them.</p>
+          <div className="section-head">
+            <h2 className="section-title">See who's here</h2>
+            <p className="section-sub">Profiles look like this: photos, name, age, where they are, and a few words about them.</p>
+          </div>
           <div className="sample-grid">
             {SAMPLES.map((s) => <SampleCard key={s.name} s={s} />)}
           </div>
@@ -95,7 +102,7 @@ export default function Home() {
           <div className="cta-band">
             <h2>Your next hello is free</h2>
             <p>Join Kitho today. No card, no catch.</p>
-            <Link to="/auth?mode=signup" className="btn btn-lg">Sign up free</Link>
+            <Link to="/auth?mode=signup" className="btn btn-primary btn-lg">Sign up free</Link>
           </div>
         </div>
       </section>
