@@ -37,7 +37,7 @@ function SampleCard({ s, className }: { s: (typeof SAMPLES)[number]; className?:
 }
 
 const FEATURES = [
-  { icon: ShieldIcon, title: 'Safety', text: 'Your email, phone and ID stay private. Only your name, age, location, bio and photos are shown to others.' },
+  { icon: ShieldIcon, title: 'Safety', text: 'Your email and phone stay private. Only your name, age, location, bio and photos are shown to others.' },
   { icon: GiftIcon, title: 'Completely Free', text: 'No subscriptions, no premium tiers, no paid boosts. Every feature is free for every person.' },
   { icon: InfinityIcon, title: 'Unlimited Likes', text: 'Like as many people as you want. No daily caps, no timers, no tricks.' },
 ]

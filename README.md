@@ -22,8 +22,11 @@ npm run dev
 
 - Schema: `supabase/migrations/` (profiles, photos, likes, messages + RLS; private `photos` bucket).
 - Edge Function: `supabase/functions/delete-account` (deletes photos + auth user; rows cascade).
-- Phone and personal ID are not readable via the API. Owner reads phone via `get_my_private()`;
-  personal ID is write-only via `set_personal_id()` and encrypted with a key in Supabase Vault.
+- Phone is owner-only (read via `get_my_private()`).
+- Personal ID: backend-only 12-digit number generated on profile insert (trigger `assign_personal_id`),
+  stored encrypted (`personal_id_enc`, key in Supabase Vault) with a keyed hash for uniqueness/lookup
+  (`personal_id_hash`). Never exposed to clients. Admin/service-role only:
+  `admin_get_personal_id(profile_id)`, `admin_find_profile_by_personal_id(id)`.
 
 ### Auth email template (Dashboard → Authentication → Emails → Confirm signup)
 

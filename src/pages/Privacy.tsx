@@ -16,7 +16,8 @@ export default function Privacy() {
       <ul>
         <li><strong>Account data:</strong> your email address and password. Passwords are stored only as secure hashes by our authentication provider.</li>
         <li><strong>Public profile:</strong> name, age, location (as you type it), description and 1–3 photos. These are visible to other signed-in Kitho users.</li>
-        <li><strong>Private profile data:</strong> phone number (optional, visible only to you) and personal ID (optional, stored encrypted and never shown to anyone, including you, after saving).</li>
+        <li><strong>Private profile data:</strong> phone number (optional, visible only to you).</li>
+        <li><strong>Internal ID:</strong> a unique ID number we generate automatically for your profile. It is stored encrypted, is never shown in the Service, and is used only by our administrators and backend systems (for example, to handle support requests and enforce our Terms).</li>
         <li><strong>Activity:</strong> the likes you send and receive, and greeting messages you send and receive.</li>
         <li><strong>Technical data:</strong> basic server logs (such as IP address, browser type and request times) kept by our hosting providers for security and reliability.</li>
       </ul>
@@ -31,8 +32,8 @@ export default function Privacy() {
       </ul>
       <p>
         Our legal bases are: performance of our contract with you (running the Service), our legitimate interests
-        (security and abuse prevention), your consent (optional fields such as phone and personal ID — you can remove
-        them at any time), and legal obligations.
+        (security and abuse prevention), your consent (optional fields such as your phone number — you can remove
+        it at any time), and legal obligations.
       </p>
 
       <h2>3. Who can see what</h2>
@@ -40,7 +41,7 @@ export default function Privacy() {
         <li><strong>Other users</strong> see your name, age, location, description and photos.</li>
         <li><strong>The person you like or message</strong> sees that like or message along with your public profile.</li>
         <li><strong>Only you</strong> can see your email and phone number.</li>
-        <li><strong>No one</strong> can read your personal ID through the Service; it is encrypted in our database.</li>
+        <li><strong>Only our administrators and backend systems</strong> can access your internal ID; it is encrypted in our database.</li>
       </ul>
 
       <h2>4. Service providers</h2>
@@ -67,7 +68,7 @@ export default function Privacy() {
       <h2>7. Security</h2>
       <p>
         Data is encrypted in transit (HTTPS) and protected by access rules in our database so that users can only read
-        what they are allowed to. Your personal ID is additionally encrypted at rest. No system is perfectly secure, so
+        what they are allowed to. Your internal ID is additionally encrypted at rest. No system is perfectly secure, so
         please use a strong, unique password.
       </p>
 

@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { isProfileComplete, useAuth } from '../lib/auth'
-import { deletePhoto, errorText, getMyPrivate, MAX_PHOTOS, photoUrls, saveProfile, setPersonalId, uploadPhoto, type Photo } from '../lib/api'
+import { deletePhoto, errorText, getMyPhone, MAX_PHOTOS, photoUrls, saveProfile, uploadPhoto, type Photo } from '../lib/api'
 import { prepareImage } from '../lib/image'
 import { LockIcon } from '../components/Icons'
 
@@ -17,8 +17,6 @@ export default function Profile() {
   const [location, setLocation] = useState('')
   const [description, setDescription] = useState('')
   const [phone, setPhone] = useState('')
-  const [personalId, setPersonalIdInput] = useState('')
-  const [hasPersonalId, setHasPersonalId] = useState(false)
   const [slots, setSlots] = useState<Slot[]>([null, null, null])
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -30,7 +28,6 @@ export default function Profile() {
     setAge(profile ? String(profile.age) : '')
     setLocation(profile?.location ?? '')
     setDescription(profile?.description ?? '')
-    setPersonalIdInput('')
     const photos = profile?.photos ?? []
     const map = photos.length ? await photoUrls(photos.map((p) => p.path)).catch(() => ({}) as Record<string, string>) : {}
     setSlots([1, 2, 3].map((pos) => {
@@ -38,9 +35,7 @@ export default function Profile() {
       return p ? { kind: 'existing', photo: p, url: map[p.path] ?? '' } : null
     }))
     if (profile) {
-      const priv = await getMyPrivate().catch(() => null)
-      setPhone(priv?.phone ?? '')
-      setHasPersonalId(!!priv?.has_personal_id)
+      setPhone((await getMyPhone().catch(() => null)) ?? '')
     }
   }
 
@@ -80,7 +75,6 @@ export default function Profile() {
         description: description.trim(),
         phone: phone.trim() || null,
       }, !!profile)
-      if (personalId.trim()) await setPersonalId(personalId.trim())
 
       const existing = profile?.photos ?? []
       for (let i = 0; i < MAX_PHOTOS; i++) {
@@ -192,19 +186,6 @@ export default function Profile() {
             <div className="field">
               <label htmlFor="phone">Phone <span className="hint">(optional)</span></label>
               <input id="phone" className="input" type="tel" maxLength={30} value={phone} onChange={(e) => setPhone(e.target.value)} disabled={ro} />
-            </div>
-            <div className="field">
-              <label htmlFor="pid">Personal ID <span className="hint">(optional · stored encrypted, never shown again)</span></label>
-              <input
-                id="pid"
-                className="input"
-                autoComplete="off"
-                maxLength={64}
-                placeholder={hasPersonalId ? '•••••••• saved — type to replace' : ''}
-                value={personalId}
-                onChange={(e) => setPersonalIdInput(e.target.value)}
-                disabled={ro}
-              />
             </div>
           </div>
         </div>

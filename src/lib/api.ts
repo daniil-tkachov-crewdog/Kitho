@@ -35,21 +35,16 @@ export async function getProfile(id: string): Promise<Profile | null> {
   return data ? sortPhotos(data as Profile) : null
 }
 
-export async function getMyPrivate(): Promise<{ phone: string | null; has_personal_id: boolean }> {
+export async function getMyPhone(): Promise<string | null> {
   const { data, error } = await supabase.rpc('get_my_private')
   if (error) throw error
-  return data?.[0] ?? { phone: null, has_personal_id: false }
+  return data?.[0]?.phone ?? null
 }
 
 export async function saveProfile(id: string, input: ProfileInput, exists: boolean) {
   const { error } = exists
     ? await supabase.from('profiles').update(input).eq('id', id)
     : await supabase.from('profiles').insert({ id, ...input })
-  if (error) throw error
-}
-
-export async function setPersonalId(value: string) {
-  const { error } = await supabase.rpc('set_personal_id', { p_personal_id: value })
   if (error) throw error
 }
 
