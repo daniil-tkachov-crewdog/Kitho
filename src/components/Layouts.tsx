@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react'
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom'
 import { isProfileComplete, useAuth } from '../lib/auth'
+import { subscribeMyChats, unreadTotal } from '../lib/api'
 import Logo from './Logo'
 import Footer from './Footer'
 import { CompassIcon, InboxIcon, UserIcon } from './Icons'
@@ -31,6 +33,7 @@ export function PublicLayout() {
 export function AppLayout() {
   const { session, profile, loading } = useAuth()
   const location = useLocation()
+  const unread = useUnreadCount(!!session, location.pathname)
 
   if (loading) return <div className="spinner" aria-label="Loading" />
   if (!session) return <Navigate to="/auth" replace state={{ from: location.pathname }} />
@@ -46,7 +49,7 @@ export function AppLayout() {
           <Logo to="/feed" />
           <nav className="nav" aria-label="Main">
             <NavLink to="/feed" className="navlink"><CompassIcon /><span>Discover</span></NavLink>
-            <NavLink to="/inbox" className="navlink"><InboxIcon /><span>Inbox</span></NavLink>
+            <NavLink to="/inbox" className="navlink"><InboxIcon /><span>Inbox</span>{unread > 0 && <span className="badge" aria-label={`${unread} unread`}>{unread}</span>}</NavLink>
             <NavLink to="/profile" className="navlink"><UserIcon /><span>Profile</span></NavLink>
           </nav>
         </div>
@@ -56,4 +59,16 @@ export function AppLayout() {
       </main>
     </div>
   )
+}
+
+/** Total unread chat messages, kept live via realtime and refreshed on navigation. */
+function useUnreadCount(enabled: boolean, pathname: string) {
+  const [count, setCount] = useState(0)
+  useEffect(() => {
+    if (!enabled) return
+    const refresh = () => unreadTotal().then(setCount, () => {})
+    refresh()
+    return subscribeMyChats(refresh)
+  }, [enabled, pathname])
+  return count
 }

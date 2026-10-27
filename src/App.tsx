@@ -6,6 +6,7 @@ import Home from './pages/Home'
 import Auth from './pages/Auth'
 import Feed from './pages/Feed'
 import Inbox from './pages/Inbox'
+import Chat from './pages/Chat'
 import Profile from './pages/Profile'
 import Settings from './pages/Settings'
 import Terms from './pages/Terms'
@@ -40,6 +41,7 @@ export default function App() {
           <Route element={<AppLayout />}>
             <Route path="feed" element={<Feed />} />
             <Route path="inbox" element={<Inbox />} />
+            <Route path="chat/:id" element={<Chat />} />
             <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<Settings />} />
           </Route>

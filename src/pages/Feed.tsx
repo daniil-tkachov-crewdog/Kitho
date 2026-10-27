@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
-import { errorText, getFeedPage, getSentState, likeProfile, photoUrls, sendGreeting, type Profile } from '../lib/api'
+import { errorText, getFeedPage, getSentState, likeProfile, photoUrls, sendMessage, type Profile } from '../lib/api'
 import PhotoCarousel from '../components/PhotoCarousel'
 import Modal from '../components/Modal'
 import { HeartIcon, PinIcon } from '../components/Icons'
@@ -17,11 +18,12 @@ function readPos(uid: string): number {
   }
 }
 
-type Batch = { start: number; items: Profile[]; liked: Set<string>; messaged: Set<string> }
+type Batch = { start: number; items: Profile[]; liked: Set<string>; chats: Map<string, string> }
 
 export default function Feed() {
   const { session } = useAuth()
   const uid = session!.user.id
+  const navigate = useNavigate()
   const [pos, setPos] = useState(() => readPos(uid))
   const [batch, setBatch] = useState<Batch | null>(null)
   const [urls, setUrls] = useState<string[]>([])
@@ -48,8 +50,8 @@ export default function Feed() {
         const items = await getFeedPage(uid, start, PAGE)
         if (cancelled) return
         if (!items.length && start > 0) return setPos(0)
-        const { liked, messaged } = await getSentState(uid, items.map((p) => p.id))
-        if (!cancelled) setBatch({ start, items, liked, messaged })
+        const { liked, chats } = await getSentState(uid, items.map((p) => p.id))
+        if (!cancelled) setBatch({ start, items, liked, chats })
       } catch (e) {
         if (!cancelled) setError(errorText(e))
       }
@@ -115,7 +117,7 @@ export default function Feed() {
   if (!current) return <div className="spinner" aria-label="Loading" />
 
   const liked = batch.liked.has(current.id)
-  const messaged = batch.messaged.has(current.id)
+  const chatId = batch.chats.get(current.id)
 
   return (
     <div className="feed-wrap">
@@ -133,8 +135,8 @@ export default function Feed() {
             <button className={`btn btn-ghost action-like${liked ? ' on' : ''}`} onClick={onLike} disabled={busy || liked}>
               <HeartIcon className="" /> {liked ? 'Liked' : 'Like'}
             </button>
-            <button className="btn btn-primary" onClick={() => setMsgOpen(true)} disabled={messaged}>
-              {messaged ? 'Sent' : 'Message'}
+            <button className="btn btn-primary" onClick={() => (chatId ? navigate(`/chat/${chatId}`) : setMsgOpen(true))}>
+              {chatId ? 'Open chat' : 'Message'}
             </button>
           </div>
         </div>
@@ -144,8 +146,8 @@ export default function Feed() {
           name={current.name}
           onClose={() => setMsgOpen(false)}
           onSend={async (body) => {
-            await sendGreeting(uid, current.id, body)
-            setBatch((b) => b && { ...b, messaged: new Set(b.messaged).add(current.id) })
+            const id = await sendMessage(current.id, body)
+            setBatch((b) => b && { ...b, chats: new Map(b.chats).set(current.id, id) })
             setMsgOpen(false)
           }}
         />
@@ -174,19 +176,19 @@ function GreetingModal({ name, onClose, onSend }: { name: string; onClose: () =>
   return (
     <Modal title={`Say hello to ${name}`} onClose={onClose}>
       <form onSubmit={submit}>
-        <p className="muted">You can send one greeting message to each person. Make it count!</p>
+        <p className="muted">Send a letter to start a chat. You can write again once they reply.</p>
         {error && <div className="alert alert-error">{error}</div>}
         <div className="field">
           <textarea
             className="textarea"
-            maxLength={500}
+            maxLength={2000}
             value={body}
             onChange={(e) => setBody(e.target.value)}
             placeholder={`Hi ${name}! …`}
             autoFocus
             required
           />
-          <span className="hint">{body.length}/500</span>
+          <span className="hint">{body.length}/2000</span>
         </div>
         <div className="modal-actions">
           <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>

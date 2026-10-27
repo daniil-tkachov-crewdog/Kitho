@@ -101,49 +101,137 @@ export async function likeProfile(myId: string, targetId: string) {
   if (error && error.code !== '23505') throw error // already liked → fine
 }
 
-export async function sendGreeting(myId: string, targetId: string, body: string) {
-  const { error } = await supabase.from('messages').insert({ sender_id: myId, receiver_id: targetId, body })
-  if (error?.code === '23505') throw new Error('You have already sent a greeting to this person.')
-  if (error) throw error
-}
-
 export async function getSentState(myId: string, targetIds: string[]) {
-  if (!targetIds.length) return { liked: new Set<string>(), messaged: new Set<string>() }
-  const [likes, msgs] = await Promise.all([
+  if (!targetIds.length) return { liked: new Set<string>(), chats: new Map<string, string>() }
+  const [likes, chats] = await Promise.all([
     supabase.from('likes').select('liked_id').eq('liker_id', myId).in('liked_id', targetIds),
-    supabase.from('messages').select('receiver_id').eq('sender_id', myId).in('receiver_id', targetIds),
+    supabase
+      .from('chats')
+      .select('id, user_a, user_b')
+      .or(`and(user_a.eq.${myId},user_b.in.(${targetIds})),and(user_b.eq.${myId},user_a.in.(${targetIds}))`),
   ])
   if (likes.error) throw likes.error
-  if (msgs.error) throw msgs.error
+  if (chats.error) throw chats.error
   return {
     liked: new Set(likes.data.map((r) => r.liked_id as string)),
-    messaged: new Set(msgs.data.map((r) => r.receiver_id as string)),
+    chats: new Map(chats.data.map((c) => [(c.user_a === myId ? c.user_b : c.user_a) as string, c.id as string])),
   }
 }
 
 export type InboxLike = { created_at: string; profile: Profile }
-export type InboxMessage = { id: string; body: string; created_at: string; profile: Profile }
 
-export async function getInbox(myId: string) {
-  const [likes, msgs] = await Promise.all([
-    supabase
-      .from('likes')
-      .select(`created_at, profile:profiles!likes_liker_id_fkey(${PUBLIC_PROFILE_COLUMNS}, photos(id, path, position))`)
-      .eq('liked_id', myId)
-      .order('created_at', { ascending: false }),
-    supabase
-      .from('messages')
-      .select(`id, body, created_at, profile:profiles!messages_sender_id_fkey(${PUBLIC_PROFILE_COLUMNS}, photos(id, path, position))`)
-      .eq('receiver_id', myId)
-      .order('created_at', { ascending: false }),
-  ])
-  if (likes.error) throw likes.error
-  if (msgs.error) throw msgs.error
-  const fix = <T extends { profile: Profile }>(r: T): T => ({ ...r, profile: sortPhotos(r.profile) })
-  return {
-    likes: (likes.data as unknown as InboxLike[]).filter((r) => r.profile).map(fix),
-    messages: (msgs.data as unknown as InboxMessage[]).filter((r) => r.profile).map(fix),
-  }
+export async function getLikesReceived(myId: string): Promise<InboxLike[]> {
+  const { data, error } = await supabase
+    .from('likes')
+    .select(`created_at, profile:profiles!likes_liker_id_fkey(${PUBLIC_PROFILE_COLUMNS}, photos(id, path, position))`)
+    .eq('liked_id', myId)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return (data as unknown as InboxLike[]).filter((r) => r.profile).map((r) => ({ ...r, profile: sortPhotos(r.profile) }))
+}
+
+export type ChatStatus = 'pending' | 'active' | 'declined'
+export type ChatSummary = {
+  id: string
+  other_id: string
+  status: ChatStatus
+  initiator_id: string | null
+  created_at: string
+  last_message_at: string | null
+  last_body: string | null
+  last_sender_id: string | null
+  unread: number
+}
+export type Message = { id: string; chat_id: string; sender_id: string; body: string; created_at: string }
+
+async function profilesById(ids: string[]): Promise<Record<string, Profile>> {
+  if (!ids.length) return {}
+  const { data, error } = await supabase
+    .from('profiles')
+    .select(`${PUBLIC_PROFILE_COLUMNS}, photos(id, path, position)`)
+    .in('id', ids)
+  if (error) throw error
+  return Object.fromEntries((data as Profile[]).map((p) => [p.id, sortPhotos(p)]))
+}
+
+export async function listChats(): Promise<(ChatSummary & { profile: Profile })[]> {
+  const { data, error } = await supabase.rpc('list_my_chats')
+  if (error) throw error
+  const chats = data as ChatSummary[]
+  const profiles = await profilesById([...new Set(chats.map((c) => c.other_id))])
+  return chats.filter((c) => profiles[c.other_id]).map((c) => ({ ...c, profile: profiles[c.other_id] }))
+}
+
+export async function unreadTotal(): Promise<number> {
+  const { data, error } = await supabase.rpc('list_my_chats')
+  if (error) throw error
+  return (data as ChatSummary[]).reduce((n, c) => n + c.unread, 0)
+}
+
+export type ChatDetail = { id: string; status: ChatStatus; initiator_id: string | null; profile: Profile }
+
+export async function getChat(myId: string, chatId: string): Promise<ChatDetail | null> {
+  const { data, error } = await supabase.from('chats').select('id, user_a, user_b, status, initiator_id').eq('id', chatId).maybeSingle()
+  if (error) throw error
+  if (!data) return null
+  const otherId = data.user_a === myId ? data.user_b : data.user_a
+  const profile = (await profilesById([otherId]))[otherId]
+  return profile ? { id: data.id, status: data.status, initiator_id: data.initiator_id, profile } : null
+}
+
+export async function getMessages(chatId: string): Promise<Message[]> {
+  const { data, error } = await supabase
+    .from('messages')
+    .select('id, chat_id, sender_id, body, created_at')
+    .eq('chat_id', chatId)
+    .order('created_at', { ascending: true })
+  if (error) throw error
+  return data as Message[]
+}
+
+/** Sends a text message to a user; creates a pending chat (letter) if none exists. Returns the chat id. */
+export async function sendMessage(toId: string, body: string): Promise<string> {
+  const { data, error } = await supabase.rpc('send_message', { p_to: toId, p_body: body })
+  if (error) throw error
+  return data as string
+}
+
+export async function declineChat(chatId: string) {
+  const { error } = await supabase.rpc('decline_chat', { p_chat: chatId })
+  if (error) throw error
+}
+
+export async function markChatRead(chatId: string) {
+  const { error } = await supabase.rpc('mark_chat_read', { p_chat: chatId })
+  if (error) throw error
+}
+
+/** Live updates for one chat: new messages and status changes. Returns an unsubscribe function. */
+export function subscribeChat(
+  chatId: string,
+  onMessage: (m: Message) => void,
+  onStatus: (s: { status: ChatStatus; initiator_id: string | null }) => void,
+) {
+  const channel = supabase
+    .channel(`chat:${chatId}`)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` }, (p) =>
+      onMessage(p.new as Message),
+    )
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'chats', filter: `id=eq.${chatId}` }, (p) =>
+      onStatus(p.new as { status: ChatStatus; initiator_id: string | null }),
+    )
+    .subscribe()
+  return () => void supabase.removeChannel(channel)
+}
+
+/** Fires on any new message or chat change visible to me (RLS-filtered). Returns an unsubscribe function. */
+export function subscribeMyChats(onChange: () => void) {
+  const channel = supabase
+    .channel(`my-chats:${crypto.randomUUID()}`)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, onChange)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'chats' }, onChange)
+    .subscribe()
+  return () => void supabase.removeChannel(channel)
 }
 
 export async function deleteAccount() {
