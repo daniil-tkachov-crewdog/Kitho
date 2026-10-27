@@ -142,7 +142,7 @@ export type ChatSummary = {
   last_sender_id: string | null
   unread: number
 }
-export type Message = { id: string; chat_id: string; sender_id: string; body: string; created_at: string }
+export type Message = { id: string; chat_id: string; sender_id: string; body: string; created_at: string; liked_by: string[] }
 
 async function profilesById(ids: string[]): Promise<Record<string, Profile>> {
   if (!ids.length) return {}
@@ -168,21 +168,44 @@ export async function unreadTotal(): Promise<number> {
   return (data as ChatSummary[]).reduce((n, c) => n + c.unread, 0)
 }
 
-export type ChatDetail = { id: string; status: ChatStatus; initiator_id: string | null; profile: Profile }
+export type ChatDetail = {
+  id: string
+  status: ChatStatus
+  initiator_id: string | null
+  other_read_at: string // when the other person last read this chat ('-infinity' if never)
+  profile: Profile
+}
+type ChatRow = {
+  id: string
+  user_a: string
+  user_b: string
+  status: ChatStatus
+  initiator_id: string | null
+  a_last_read_at: string
+  b_last_read_at: string
+}
+const otherReadAt = (row: ChatRow, myId: string) => (row.user_a === myId ? row.b_last_read_at : row.a_last_read_at)
 
 export async function getChat(myId: string, chatId: string): Promise<ChatDetail | null> {
-  const { data, error } = await supabase.from('chats').select('id, user_a, user_b, status, initiator_id').eq('id', chatId).maybeSingle()
+  const { data, error } = await supabase
+    .from('chats')
+    .select('id, user_a, user_b, status, initiator_id, a_last_read_at, b_last_read_at')
+    .eq('id', chatId)
+    .maybeSingle()
   if (error) throw error
   if (!data) return null
-  const otherId = data.user_a === myId ? data.user_b : data.user_a
+  const row = data as ChatRow
+  const otherId = row.user_a === myId ? row.user_b : row.user_a
   const profile = (await profilesById([otherId]))[otherId]
-  return profile ? { id: data.id, status: data.status, initiator_id: data.initiator_id, profile } : null
+  return profile
+    ? { id: row.id, status: row.status, initiator_id: row.initiator_id, other_read_at: otherReadAt(row, myId), profile }
+    : null
 }
 
 export async function getMessages(chatId: string): Promise<Message[]> {
   const { data, error } = await supabase
     .from('messages')
-    .select('id, chat_id, sender_id, body, created_at')
+    .select('id, chat_id, sender_id, body, created_at, liked_by')
     .eq('chat_id', chatId)
     .order('created_at', { ascending: true })
   if (error) throw error
@@ -206,20 +229,49 @@ export async function markChatRead(chatId: string) {
   if (error) throw error
 }
 
-/** Live updates for one chat: new messages and status changes. Returns an unsubscribe function. */
+/** Toggles my like on a message. Returns the new liked state. */
+export async function toggleMessageLike(messageId: string): Promise<boolean> {
+  const { data, error } = await supabase.rpc('toggle_message_like', { p_message: messageId })
+  if (error) throw error
+  return data as boolean
+}
+
+export const REPORT_REASONS = [
+  { code: 'fake', label: 'Fake profile or catfishing' },
+  { code: 'spam', label: 'Spam or scam' },
+  { code: 'harassment', label: 'Harassment or bullying' },
+  { code: 'inappropriate', label: 'Inappropriate or sexual content' },
+  { code: 'hate', label: 'Hate speech or discrimination' },
+  { code: 'threats', label: 'Threats or violence' },
+  { code: 'underage', label: 'Appears to be under 18' },
+  { code: 'other', label: 'Something else' },
+] as const
+export type ReportReason = (typeof REPORT_REASONS)[number]['code']
+
+export async function reportProfile(myId: string, reportedId: string, reason: ReportReason, details: string) {
+  const { error } = await supabase.from('reports').insert({ reporter_id: myId, reported_id: reportedId, reason, details })
+  if (error) throw error
+}
+
+/** Live updates for one chat: new and changed messages, status and read-receipt changes. Returns an unsubscribe function. */
 export function subscribeChat(
+  myId: string,
   chatId: string,
   onMessage: (m: Message) => void,
-  onStatus: (s: { status: ChatStatus; initiator_id: string | null }) => void,
+  onChat: (c: Pick<ChatDetail, 'status' | 'initiator_id' | 'other_read_at'>) => void,
 ) {
   const channel = supabase
     .channel(`chat:${chatId}`)
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` }, (p) =>
       onMessage(p.new as Message),
     )
-    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'chats', filter: `id=eq.${chatId}` }, (p) =>
-      onStatus(p.new as { status: ChatStatus; initiator_id: string | null }),
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` }, (p) =>
+      onMessage(p.new as Message),
     )
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'chats', filter: `id=eq.${chatId}` }, (p) => {
+      const row = p.new as ChatRow
+      onChat({ status: row.status, initiator_id: row.initiator_id, other_read_at: otherReadAt(row, myId) })
+    })
     .subscribe()
   return () => void supabase.removeChannel(channel)
 }

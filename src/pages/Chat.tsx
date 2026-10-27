@@ -2,10 +2,11 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
 import {
-  declineChat, errorText, getChat, getMessages, likeProfile, markChatRead, photoUrls, sendMessage, subscribeChat,
-  type ChatDetail, type Message,
+  declineChat, errorText, getChat, getMessages, likeProfile, markChatRead, photoUrls, reportProfile, sendMessage, subscribeChat,
+  toggleMessageLike, REPORT_REASONS, type ChatDetail, type Message, type ReportReason,
 } from '../lib/api'
-import { ChevronLeftIcon } from '../components/Icons'
+import Modal from '../components/Modal'
+import { AlertIcon, ChevronLeftIcon, HeartIcon } from '../components/Icons'
 
 const time = (iso: string) => new Date(iso).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })
 
@@ -21,6 +22,7 @@ export default function Chat() {
   const [body, setBody] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [reportOpen, setReportOpen] = useState(false)
   const endRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -40,9 +42,10 @@ export default function Chat() {
       }
     })()
     const unsubscribe = subscribeChat(
+      uid,
       id,
       (m) => {
-        setMessages((list) => (list.some((x) => x.id === m.id) ? list : [...list, m]))
+        setMessages((list) => upsert(list, m))
         if (m.sender_id !== uid) markChatRead(id).catch(() => {})
       },
       (s) => setChat((c) => c && { ...c, ...s }),
@@ -67,6 +70,15 @@ export default function Chat() {
     } finally {
       setBusy(false)
     }
+  }
+
+  function onLike(m: Message) {
+    run(async () => {
+      const liked = await toggleMessageLike(m.id)
+      setMessages((list) =>
+        list.map((x) => (x.id === m.id ? { ...x, liked_by: liked ? [...x.liked_by.filter((u) => u !== uid), uid] : x.liked_by.filter((u) => u !== uid) } : x)),
+      )
+    })
   }
 
   function onSend(e: FormEvent) {
@@ -102,20 +114,47 @@ export default function Chat() {
       <div className="chat-head">
         <Link to="/inbox" className="chat-back" aria-label="Back to inbox"><ChevronLeftIcon /></Link>
         {photo ? <img className="avatar" src={photo} alt={p.name} /> : <div className="avatar" />}
-        <div>
+        <div className="chat-who">
           <strong>{p.name}, {p.age}</strong>
           <div className="muted">{p.location}</div>
         </div>
+        <button className="chat-report" onClick={() => setReportOpen(true)} aria-label={`Report ${p.name}`} title="Report">
+          <AlertIcon />
+        </button>
       </div>
 
       <div className="chat-thread">
         {!messages.length && <p className="muted chat-note">It’s a match! Say hi to {p.name}.</p>}
-        {messages.map((m) => (
-          <div key={m.id} className={`bubble ${m.sender_id === uid ? 'mine' : 'theirs'}`}>
-            <p>{m.body}</p>
-            <time dateTime={m.created_at}>{time(m.created_at)}</time>
-          </div>
-        ))}
+        {messages.map((m) => {
+          const mine = m.sender_id === uid
+          const likedByMe = m.liked_by.includes(uid)
+          const seen = new Date(m.created_at).getTime() <= new Date(chat.other_read_at).getTime()
+          return (
+            <div key={m.id} className={`msg ${mine ? 'mine' : 'theirs'}`}>
+              <div className="msg-row">
+                <div className="bubble" onDoubleClick={() => onLike(m)}>
+                  <p>{m.body}</p>
+                  <time dateTime={m.created_at}>{time(m.created_at)}</time>
+                  {m.liked_by.length > 0 && (
+                    <span className="bubble-likes" aria-label={`${m.liked_by.length} like${m.liked_by.length > 1 ? 's' : ''}`}>
+                      <HeartIcon />{m.liked_by.length > 1 && m.liked_by.length}
+                    </span>
+                  )}
+                </div>
+                <button
+                  className={`msg-like${likedByMe ? ' on' : ''}`}
+                  onClick={() => onLike(m)}
+                  disabled={busy}
+                  aria-label={likedByMe ? 'Unlike message' : 'Like message'}
+                  aria-pressed={likedByMe}
+                >
+                  <HeartIcon />
+                </button>
+              </div>
+              {mine && <div className="msg-status">{seen ? 'Seen' : 'Delivered'}</div>}
+            </div>
+          )
+        })}
         <div ref={endRef} />
       </div>
 
@@ -153,6 +192,82 @@ export default function Chat() {
           <button className="btn btn-primary" disabled={busy || !body.trim()}>Send</button>
         </form>
       )}
+      {reportOpen && (
+        <ReportModal
+          name={p.name}
+          onClose={() => setReportOpen(false)}
+          onSubmit={(reason, details) => reportProfile(uid, p.id, reason, details)}
+        />
+      )}
     </div>
+  )
+}
+
+const upsert = (list: Message[], m: Message) =>
+  list.some((x) => x.id === m.id) ? list.map((x) => (x.id === m.id ? m : x)) : [...list, m]
+
+function ReportModal({ name, onClose, onSubmit }: {
+  name: string
+  onClose: () => void
+  onSubmit: (reason: ReportReason, details: string) => Promise<void>
+}) {
+  const [reason, setReason] = useState<ReportReason | ''>('')
+  const [details, setDetails] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  const [done, setDone] = useState(false)
+
+  async function submit(e: FormEvent) {
+    e.preventDefault()
+    if (!reason) return
+    setBusy(true)
+    setError('')
+    try {
+      await onSubmit(reason, details.trim())
+      setDone(true)
+    } catch (err) {
+      setError(errorText(err))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  if (done) {
+    return (
+      <Modal title="Report sent" onClose={onClose}>
+        <p className="muted">Thanks. Our team will review your report about {name}.</p>
+        <div className="modal-actions"><button className="btn btn-primary" onClick={onClose}>Close</button></div>
+      </Modal>
+    )
+  }
+
+  return (
+    <Modal title={`Report ${name}`} onClose={onClose}>
+      <form onSubmit={submit}>
+        <p className="muted">Why are you reporting this person? They won’t know it was you.</p>
+        {error && <div className="alert alert-error">{error}</div>}
+        <div className="report-reasons" role="radiogroup" aria-label="Reason">
+          {REPORT_REASONS.map((r) => (
+            <label key={r.code} className={`report-reason${reason === r.code ? ' on' : ''}`}>
+              <input type="radio" name="reason" value={r.code} checked={reason === r.code} onChange={() => setReason(r.code)} />
+              {r.label}
+            </label>
+          ))}
+        </div>
+        <div className="field">
+          <textarea
+            className="textarea report-details"
+            maxLength={1000}
+            value={details}
+            onChange={(e) => setDetails(e.target.value)}
+            placeholder="Add details (optional)"
+          />
+        </div>
+        <div className="modal-actions">
+          <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
+          <button className="btn btn-danger" disabled={busy || !reason}>Report</button>
+        </div>
+      </form>
+    </Modal>
   )
 }
