@@ -1,0 +1,27 @@
+# Edge Functions that check their own credentials (admin token, or none for the tracker).
+[functions.track-visit]
+verify_jwt = false
+
+[functions.admin-login]
+verify_jwt = false
+
+[functions.admin-stats]
+verify_jwt = false
+
+[functions.admin-users]
+verify_jwt = false
+
+[functions.admin-restrict]
+verify_jwt = false
+
+[functions.admin-ban]
+verify_jwt = false
+
+[functions.admin-delete-user]
+verify_jwt = false
+
+[functions.admin-reports]
+verify_jwt = false
+
+[functions.admin-report-settings]
+verify_jwt = false

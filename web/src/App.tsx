@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom'
 import { AuthProvider } from './lib/auth'
+import { useVisitTracker } from './lib/tracker'
 import { AppLayout, PublicLayout } from './components/Layouts'
 import Home from './pages/Home'
 import Auth from './pages/Auth'
@@ -14,6 +15,7 @@ import Privacy from './pages/Privacy'
 import Faq from './pages/Faq'
 import Contact from './pages/Contact'
 import NotFound from './pages/NotFound'
+import AdminApp from './pages/admin/AdminApp'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -23,12 +25,19 @@ function ScrollToTop() {
   return null
 }
 
+function VisitTracker() {
+  useVisitTracker()
+  return null
+}
+
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <ScrollToTop />
+        <VisitTracker />
         <Routes>
+          <Route path="admin" element={<AdminApp />} />
           <Route element={<PublicLayout />}>
             <Route index element={<Home />} />
             <Route path="auth" element={<Auth />} />

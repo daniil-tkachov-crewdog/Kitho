@@ -1,11 +1,12 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from './supabase'
-import { getProfile, type Profile } from './api'
+import { getMyBanned, getProfile, type Profile } from './api'
 
 type AuthState = {
   session: Session | null
   profile: Profile | null
+  banned: boolean
   /** True until we know both the session and (if signed in) that user's profile. */
   loading: boolean
   refreshProfile: () => Promise<void>
@@ -20,11 +21,11 @@ export function isProfileComplete(p: Profile | null): boolean {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false)
   const [session, setSession] = useState<Session | null>(null)
-  const [loaded, setLoaded] = useState<{ userId: string; profile: Profile | null } | null>(null)
+  const [loaded, setLoaded] = useState<{ userId: string; profile: Profile | null; banned: boolean } | null>(null)
 
   const loadProfile = useCallback(async (userId: string) => {
-    const profile = await getProfile(userId).catch(() => null)
-    setLoaded({ userId, profile })
+    const [profile, banned] = await Promise.all([getProfile(userId).catch(() => null), getMyBanned().catch(() => false)])
+    setLoaded({ userId, profile, banned })
   }, [])
 
   useEffect(() => {
@@ -53,6 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         session,
         profile: userId && loaded?.userId === userId ? loaded.profile : null,
+        banned: !!userId && loaded?.userId === userId && loaded.banned,
         loading: !ready || !profileReady,
         refreshProfile,
       }}

@@ -41,6 +41,13 @@ export async function getMyPhone(): Promise<string | null> {
   return data?.[0]?.phone ?? null
 }
 
+/** Whether my account is banned (banned users are locked out of the app). */
+export async function getMyBanned(): Promise<boolean> {
+  const { data, error } = await supabase.rpc('get_my_status')
+  if (error) throw error
+  return data?.[0]?.banned ?? false
+}
+
 export async function saveProfile(id: string, input: ProfileInput, exists: boolean) {
   const { error } = exists
     ? await supabase.from('profiles').update(input).eq('id', id)

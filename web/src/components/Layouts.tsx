@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom'
 import { isProfileComplete, useAuth } from '../lib/auth'
 import { subscribeMyChats, unreadTotal } from '../lib/api'
+import { supabase } from '../lib/supabase'
 import Logo from './Logo'
 import Footer from './Footer'
 import { CompassIcon, InboxIcon, UserIcon } from './Icons'
@@ -31,12 +32,13 @@ export function PublicLayout() {
 
 /** Signed-in area. Redirects to /auth when logged out and to /profile until the profile is complete. */
 export function AppLayout() {
-  const { session, profile, loading } = useAuth()
+  const { session, profile, banned, loading } = useAuth()
   const location = useLocation()
-  const unread = useUnreadCount(!!session, location.pathname)
+  const unread = useUnreadCount(!!session && !banned, location.pathname)
 
   if (loading) return <div className="spinner" aria-label="Loading" />
   if (!session) return <Navigate to="/auth" replace state={{ from: location.pathname }} />
+  if (banned) return <Suspended />
   const complete = isProfileComplete(profile)
   if (!complete && location.pathname !== '/profile' && location.pathname !== '/settings') {
     return <Navigate to="/profile" replace />
@@ -56,6 +58,24 @@ export function AppLayout() {
       </header>
       <main>
         <Outlet />
+      </main>
+    </div>
+  )
+}
+
+/** Shown instead of the app to banned users. */
+function Suspended() {
+  return (
+    <div className="page">
+      <header className="header">
+        <div className="container"><Logo /></div>
+      </header>
+      <main className="auth-wrap">
+        <div className="panel auth-panel center">
+          <h2>Account suspended</h2>
+          <p className="muted">Your account has been suspended for breaking the community rules.</p>
+          <button className="btn btn-ghost btn-block" onClick={() => void supabase.auth.signOut()}>Log out</button>
+        </div>
       </main>
     </div>
   )
