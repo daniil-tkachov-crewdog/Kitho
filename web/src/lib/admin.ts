@@ -64,6 +64,7 @@ export type AdminUser = {
   restricted: boolean
   restricted_manual: boolean
   banned: boolean
+  fake: boolean
   created_at: string
 }
 export const getUsers = () => call<{ users: AdminUser[] }>('admin-users').then((r) => r.users)

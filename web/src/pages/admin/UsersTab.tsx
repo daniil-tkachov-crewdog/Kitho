@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { deleteUser, getUsers, setBanned, setRestricted, type AdminUser } from '../../lib/admin'
+import { deleteFakeUser, deleteUser, getUsers, setBanned, setRestricted, type AdminUser } from '../../lib/admin'
 import { errorText } from '../../lib/api'
 import { BanIcon, RestrictIcon, TrashIcon } from '../../components/Icons'
 import Modal from '../../components/Modal'
@@ -26,7 +26,7 @@ export default function UsersTab({ onExpired }: { onExpired: () => void }) {
 
   async function confirmDelete() {
     if (!toDelete) return
-    await act(toDelete.id, () => deleteUser(toDelete.id))
+    await act(toDelete.id, () => (toDelete.fake ? deleteFakeUser(toDelete.id) : deleteUser(toDelete.id)))
     setToDelete(null)
   }
 
@@ -49,7 +49,10 @@ export default function UsersTab({ onExpired }: { onExpired: () => void }) {
               return (
                 <tr key={u.id} className={u.banned ? 'is-banned' : u.restricted ? 'is-restricted' : ''}>
                   <td className="mono">{u.personal_id ?? '—'}</td>
-                  <td>{u.name ?? <span className="muted">No profile yet</span>}</td>
+                  <td>
+                    {u.name ?? <span className="muted">No profile yet</span>}
+                    {u.fake && <span className="fake-badge">Fake</span>}
+                  </td>
                   <td>{u.email ?? '—'}</td>
                   <td>{u.phone || '—'}</td>
                   <td>{u.location ?? '—'}</td>
@@ -62,7 +65,7 @@ export default function UsersTab({ onExpired }: { onExpired: () => void }) {
                         className={`icon-btn${u.restricted ? ' on' : ''}`}
                         title={u.restricted ? 'Unrestrict' : 'Restrict'}
                         aria-label={u.restricted ? `Unrestrict ${u.name}` : `Restrict ${u.name}`}
-                        disabled={busy || !hasProfile}
+                        disabled={busy || !hasProfile || u.fake}
                         onClick={() => act(u.id, () => setRestricted(u.id, !u.restricted))}
                       >
                         <RestrictIcon />
@@ -71,7 +74,7 @@ export default function UsersTab({ onExpired }: { onExpired: () => void }) {
                         className={`icon-btn${u.banned ? ' on' : ''}`}
                         title={u.banned ? 'Unban' : 'Ban'}
                         aria-label={u.banned ? `Unban ${u.name}` : `Ban ${u.name}`}
-                        disabled={busy || !hasProfile}
+                        disabled={busy || !hasProfile || u.fake}
                         onClick={() => act(u.id, () => setBanned(u.id, !u.banned))}
                       >
                         <BanIcon />
