@@ -1,98 +1,119 @@
 import { Link } from 'react-router-dom'
-import { LEGAL_UPDATED } from '../lib/config'
+
+const TERMS_UPDATED = '2 November 2026'
 
 export default function Terms() {
   return (
     <div className="container narrow legal">
       <h1>Terms of Use</h1>
-      <p className="muted">Last updated: {LEGAL_UPDATED}</p>
+      <p className="muted">Last updated: {TERMS_UPDATED}</p>
       <p>
-        Welcome to Kitho. These Terms of Use (“Terms”) are an agreement between you and Kitho (“Kitho”, “we”, “us”)
-        and govern your use of the Kitho website and services (the “Service”). By creating an account or using the
-        Service you agree to these Terms. If you do not agree, do not use the Service.
+        These Terms of Use (“Terms”) are the agreement between you and Kitho (“we”, “us”) for using the Kitho app and
+        website (the “Service”). By creating an account or using Kitho you agree to them. If you do not agree, do not
+        use Kitho.
       </p>
 
-      <h2>1. Eligibility</h2>
+      <h2>1. About us</h2>
+      <p>
+        Kitho (company number: [COMPANY NUMBER]; registered office: [REGISTERED ADDRESS]). Contact:{' '}
+        <strong>admin@kitho.co.uk</strong>. See also our <Link to="/privacy">Privacy Policy</Link>, which explains how
+        we use your personal data.
+      </p>
+
+      <h2>2. Who can use Kitho</h2>
       <ul>
-        <li>You must be at least 18 years old to use Kitho.</li>
-        <li>You may hold only one account, and it must represent you — a real, single person.</li>
-        <li>You may not use Kitho if you have been previously removed from the Service or are legally prohibited from using it.</li>
+        <li>Kitho is for adults only. You must be <strong>18 or over</strong>.</li>
+        <li>You must give your correct date of birth when you register. Giving a false date of birth breaks these Terms.</li>
+        <li>You may have <strong>one account</strong>. Do not create accounts for other people or create additional accounts for yourself.</li>
+        <li>If we find a user is under 18, we remove their account.</li>
       </ul>
 
-      <h2>2. Your account</h2>
-      <p>
-        You are responsible for keeping your login details confidential and for all activity on your account. Use a
-        strong, unique password and tell us promptly if you believe your account has been compromised. You must provide
-        accurate information, including a working email address that you verify.
-      </p>
-
-      <h2>3. The Service is free</h2>
-      <p>
-        Kitho is currently provided free of charge, without paid tiers or limits on likes. We may introduce optional
-        paid features or advertising in the future; if we do, we will update these Terms and tell you before any
-        charge applies. We will never charge you without your explicit consent.
-      </p>
-
-      <h2>4. Your content</h2>
-      <p>
-        You own the content you post (photos, name, age, location, description and messages — “Your Content”). By
-        posting it, you grant Kitho a worldwide, non-exclusive, royalty-free licence to host, store, display and
-        transmit Your Content solely to operate and provide the Service. This licence ends when you delete the content
-        or your account, except where we must keep data to comply with law.
-      </p>
-      <p>You confirm that you have the right to post Your Content and that it does not violate these Terms or anyone else’s rights.</p>
-
-      <h2>5. Community rules</h2>
-      <p>You agree not to:</p>
+      <h2>3. Your account</h2>
       <ul>
-        <li>impersonate anyone, create fake profiles, or post photos of other people without their consent;</li>
-        <li>post nudity, sexually explicit material, violence, hate speech, or anything illegal;</li>
-        <li>harass, threaten, bully, stalk, or intimidate other users;</li>
-        <li>solicit money, promote commercial services, spam, or run scams;</li>
-        <li>use the Service if you are under 18, or post content involving minors;</li>
-        <li>scrape, copy, or collect other users’ data, or use bots or automated tools;</li>
-        <li>attempt to break, overload, or bypass the security of the Service.</li>
+        <li>You can sign up with your email, or with Google or Apple.</li>
+        <li>Keep your login details secure. You are responsible for activity on your account. Tell us at once if you think someone else has used it.</li>
+        <li>Information in your profile must be true and must be about you.</li>
       </ul>
 
-      <h2>6. Interactions with other users</h2>
+      <h2>4. Rules of conduct</h2>
+      <p>When using Kitho you must not:</p>
+      <ul>
+        <li>harass, threaten, abuse, stalk or discriminate against anyone, or use hate speech</li>
+        <li>pretend to be someone else, use fake or misleading profiles, or use photos of other people</li>
+        <li>post nudity or sexually explicit content. Kitho does not allow it</li>
+        <li>post anything illegal, including content that sexualises minors, shares intimate images without consent, encourages terrorism or violence, or is a fraud</li>
+        <li>scam, ask for money, or try to get personal or financial information from others</li>
+        <li>use Kitho for business or professional purposes, including advertising goods or services, or for sex work or escort services</li>
+        <li>send spam or unwanted mass messages</li>
+        <li>collect other users’ data, scrape the Service, or use bots or automated tools</li>
+        <li>try to hack, disrupt or bypass the security of the Service</li>
+        <li>help anyone else to break these rules</li>
+      </ul>
+
+      <h2>5. Your content</h2>
+      <ul>
+        <li>You own your photos, bio, messages and other content (“your content”). You are responsible for it and confirm you have the right to post it.</li>
+        <li>You give us a non-exclusive, worldwide, royalty-free licence to host, store, display and process your content, only to run, secure and improve the Service. Other users can see your profile content as the app is designed to work.</li>
+        <li>The licence ends when you delete your content or your account, except for content that has already been sent to other users in chats, and copies we must keep by law.</li>
+        <li>We do not use your photos for advertising.</li>
+      </ul>
+
+      <h2>6. Reporting and moderation</h2>
+      <ul>
+        <li>You can report a profile, message or user in the app. Reports are tracked automatically.</li>
+        <li>Each report adds points to the account reported. When the points reach a set limit the account is <strong>restricted</strong>. If more reports come in, the account is <strong>banned</strong>. This happens automatically.</li>
+        <li>An administrator reviews every restriction and ban and can undo it if it was a mistake.</li>
+        <li>We may also remove content, restrict or ban an account directly where needed to protect users or to deal with illegal content. We act on illegal content as soon as we become aware of it.</li>
+        <li>If you think we made a mistake, <strong>message the administrator in the Inbox tab</strong> and ask for a review. An administrator will look at it and reply.</li>
+        <li>We may share information with the police or other authorities when the law requires or to protect people from serious harm.</li>
+      </ul>
+
+      <h2>7. Your safety</h2>
+      <ul>
+        <li>We do not run identity or background checks on users. We cannot confirm that people are who they say they are.</li>
+        <li>Be careful when sharing personal information and when meeting someone in person. Meet in a public place and tell someone you trust.</li>
+        <li>You are responsible for your own interactions with other users, online and offline.</li>
+      </ul>
+
+      <h2>8. The Service</h2>
+      <ul>
+        <li>Kitho is free to use.</li>
+        <li>We provide the Service “as is” and “as available”. We do not promise it will always be available, error-free or uninterrupted, and we may change or stop features.</li>
+        <li>We do not promise you will find a match or a relationship.</li>
+      </ul>
+
+      <h2>9. Ending your account</h2>
+      <ul>
+        <li>You can delete your account at any time in the app (Settings → Delete my account). Your data is deleted straight away, as explained in our <Link to="/privacy">Privacy Policy</Link>.</li>
+        <li>We may suspend or end your account if you break these Terms or the law.</li>
+      </ul>
+
+      <h2>10. Our responsibility to you</h2>
+      <ul>
+        <li>Nothing in these Terms limits liability for death or personal injury caused by negligence, for fraud, or for anything else the law does not allow us to limit.</li>
+        <li>Otherwise, as Kitho is free, we are not liable for loss or damage from using the Service, including the behaviour of other users, content posted by users, or interruptions to the Service, to the extent the law permits.</li>
+        <li>You are responsible for losses we suffer because you break these Terms.</li>
+      </ul>
+
+      <h2>11. Changes to these Terms</h2>
       <p>
-        You are solely responsible for your interactions with other users. Kitho does not run criminal background
-        checks or verify the identity of users. Use caution and good judgement when communicating with or meeting
-        people, especially in person for the first time: meet in public places and tell a friend where you are going.
+        We may change these Terms. We will give you at least <strong>30 days’</strong> notice of important changes in
+        the app or by email. If you keep using Kitho after the change starts, you accept the new Terms. If you do not
+        agree, you can delete your account.
       </p>
 
-      <h2>7. Moderation and termination</h2>
+      <h2>12. Complaints</h2>
       <p>
-        We may remove content, or suspend or terminate accounts, that we reasonably believe break these Terms or put
-        others at risk. You can delete your account at any time from <strong>Settings → Delete my account</strong>;
-        deletion is permanent.
+        Email <strong>admin@kitho.co.uk</strong> or use our <Link to="/contact">Contact page</Link>. We aim to reply
+        within a reasonable time.
       </p>
 
-      <h2>8. Disclaimers</h2>
+      <h2>13. Governing law</h2>
       <p>
-        The Service is provided “as is” and “as available”, without warranties of any kind. We do not guarantee that
-        you will meet anyone, that the Service will be uninterrupted or error-free, or that information provided by
-        other users is accurate.
+        These Terms, and any dispute about them, are governed by the law of England and Wales, and the courts of
+        England and Wales have jurisdiction. Consumers living elsewhere in the UK keep any rights to bring claims in
+        their local courts. These Terms are in English only.
       </p>
-
-      <h2>9. Limitation of liability</h2>
-      <p>
-        To the fullest extent permitted by law, Kitho will not be liable for any indirect, incidental, special,
-        consequential or punitive damages, or for any loss arising from your use of the Service or your interactions
-        with other users. Nothing in these Terms limits liability that cannot be limited by law.
-      </p>
-
-      <h2>10. Privacy</h2>
-      <p>How we handle your personal data is explained in our <Link to="/privacy">Privacy Policy</Link>.</p>
-
-      <h2>11. Changes</h2>
-      <p>
-        We may update these Terms from time to time. If changes are material, we will notify you in the Service before
-        they take effect. Continuing to use Kitho after changes take effect means you accept the updated Terms.
-      </p>
-
-      <h2>12. Contact</h2>
-      <p>Questions about these Terms? Visit our <Link to="/contact">Contact page</Link>.</p>
     </div>
   )
 }

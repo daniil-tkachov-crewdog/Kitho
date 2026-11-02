@@ -8,7 +8,7 @@ This policy explains how Kitho ("we", "us") collects and uses your personal data
 
 The controller of your personal data is **Kitho** (company number: [COMPANY NUMBER]; registered office: [REGISTERED ADDRESS]).
 
-Contact for all privacy matters: **denny.t.mail@gmail.com**
+Contact for all privacy matters: **admin@kitho.co.uk**
 
 We have not appointed a Data Protection Officer. Use the email above for any request or question.
 
@@ -53,7 +53,9 @@ You can withdraw consent at any time (see section 9). Withdrawing does not affec
 
 We do not use automated matching or profiling to decide who you are shown.
 
-We use automated tools to help detect content that breaks our Community Guidelines. If an automated tool flags your account or content, an administrator reviews it before we suspend or remove your account. You can ask for a review of any moderation decision by emailing us.
+We use an automated reporting system for safety. Each report made against an account adds points to it. When the points reach a set limit, the account is automatically restricted. If more reports come in, the account is automatically banned. This can significantly affect your access to Kitho.
+
+An administrator reviews every restriction and ban and can reverse it if it was a mistake. You can also ask for a human review, tell us your view or challenge a decision by messaging the administrator in the Inbox tab or emailing admin@kitho.co.uk.
 
 ## 6. Who we share your data with
 
@@ -89,7 +91,7 @@ You have the right to:
 - **withdraw consent** at any time (in app settings, device settings or by emailing us)
 - **not be subject to solely automated decisions** with legal or similarly significant effects
 
-To use any right, email denny.t.mail@gmail.com. We reply within one month.
+To use any right, email admin@kitho.co.uk. We reply within one month.
 
 ## 10. Marketing and notifications
 

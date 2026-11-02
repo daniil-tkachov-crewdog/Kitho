@@ -18,7 +18,7 @@ export default function Privacy() {
         office: [REGISTERED ADDRESS]).
       </p>
       <p>
-        Contact for all privacy matters: <a href="mailto:denny.t.mail@gmail.com">denny.t.mail@gmail.com</a>
+        Contact for all privacy matters: <a href="mailto:admin@kitho.co.uk">admin@kitho.co.uk</a>
       </p>
       <p>We have not appointed a Data Protection Officer. Use the email above for any request or question.</p>
 
@@ -67,9 +67,14 @@ export default function Privacy() {
       <h2>5. Automated decisions</h2>
       <p>We do not use automated matching or profiling to decide who you are shown.</p>
       <p>
-        We use automated tools to help detect content that breaks our Community Guidelines. If an automated tool flags
-        your account or content, an administrator reviews it before we suspend or remove your account. You can ask for
-        a review of any moderation decision by emailing us.
+        We use an automated reporting system for safety. Each report made against an account adds points to it. When
+        the points reach a set limit, the account is automatically restricted. If more reports come in, the account is
+        automatically banned. This can significantly affect your access to Kitho.
+      </p>
+      <p>
+        An administrator reviews every restriction and ban and can reverse it if it was a mistake. You can also ask for
+        a human review, tell us your view or challenge a decision by messaging the administrator in the Inbox tab or
+        emailing <a href="mailto:admin@kitho.co.uk">admin@kitho.co.uk</a>.
       </p>
 
       <h2>6. Who we share your data with</h2>
@@ -113,7 +118,7 @@ export default function Privacy() {
         <li><strong>not be subject to solely automated decisions</strong> with legal or similarly significant effects</li>
       </ul>
       <p>
-        To use any right, email <a href="mailto:denny.t.mail@gmail.com">denny.t.mail@gmail.com</a> or use our{' '}
+        To use any right, email <a href="mailto:admin@kitho.co.uk">admin@kitho.co.uk</a> or use our{' '}
         <Link to="/contact">Contact page</Link>. We reply within one month.
       </p>
 
