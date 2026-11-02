@@ -23,7 +23,7 @@
 
 * { box-sizing: border-box; }
 html, body, #root { margin: 0; min-height: 100%; }
-body { background: var(--bg); line-height: 1.55; }
+body { background: var(--bg); line-height: 1.55; overflow-x: clip; }
 img { display: block; max-width: 100%; }
 a { color: var(--text); }
 h1, h2, h3 { line-height: 1.1; margin: 0 0 0.5em; font-weight: 500; letter-spacing: -0.035em; }
@@ -243,9 +243,9 @@ p { margin: 0 0 1em; }
 .tabs button { border: 0; background: transparent; height: 36px; padding: 0 16px; border-radius: 999px; font: inherit; font-size: 14px; font-weight: 500; color: var(--muted); cursor: pointer; white-space: nowrap; }
 .tabs button:hover { color: var(--text); }
 .tabs button.on { background: var(--text); color: #fff; }
-.list { display: grid; gap: 12px; margin-bottom: 72px; }
+.list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; margin-bottom: 72px; }
 .list > p.muted { margin: 8px 0 0; }
-.list-item { display: flex; gap: 16px; align-items: flex-start; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+.list-item { display: flex; min-width: 0; gap: 16px; align-items: flex-start; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
 .avatar { width: 64px; height: 64px; border-radius: 16px; object-fit: cover; flex: none; background: var(--surface-2); }
 .list-item .body { flex: 1; min-width: 0; padding-top: 2px; }
 .list-item .body strong { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
