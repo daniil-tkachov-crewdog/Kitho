@@ -40,3 +40,12 @@ verify_jwt = false
 
 [functions.admin-fake-delete]
 verify_jwt = false
+
+[functions.admin-messages-settings]
+verify_jwt = false
+
+[functions.admin-chats]
+verify_jwt = false
+
+[functions.admin-chat]
+verify_jwt = false

@@ -129,3 +129,23 @@ export type ReportSettings = { restrict_points: number; ban_points: number; deca
 export type ReportConfig = { reasons: Record<string, number>; settings: ReportSettings }
 export const getReportConfig = () => call<ReportConfig>('admin-report-settings')
 export const saveReportConfig = (config: ReportConfig) => call<ReportConfig>('admin-report-settings', config)
+
+export type GreetingSettings = { greeting_enabled: boolean; greeting_text: string }
+export const getGreetingSettings = () => call<GreetingSettings>('admin-messages-settings')
+export const saveGreetingSettings = (s: GreetingSettings) => call<GreetingSettings>('admin-messages-settings', s)
+
+export type AdminChat = {
+  user_id: string
+  personal_id: string | null
+  name: string
+  created_at: string
+  last_message_at: string | null
+  last_body: string | null
+  last_from_admin: boolean | null
+  unread: number
+}
+export type AdminChatMessage = { id: string; from_admin: boolean; body: string; created_at: string }
+export type AdminChatDetail = { name: string; messages: AdminChatMessage[]; user_read_at: string | null }
+export const getAdminChats = () => call<{ chats: AdminChat[] }>('admin-chats').then((r) => r.chats)
+export const getAdminChat = (user_id: string) => call<AdminChatDetail>('admin-chat', { user_id })
+export const sendToUser = (user_id: string, body: string) => call<AdminChatDetail>('admin-chat', { user_id, body })

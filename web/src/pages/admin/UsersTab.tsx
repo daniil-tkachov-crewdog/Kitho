@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { deleteFakeUser, deleteUser, getUsers, setBanned, setRestricted, type AdminUser } from '../../lib/admin'
 import { errorText } from '../../lib/api'
-import { BanIcon, RestrictIcon, TrashIcon } from '../../components/Icons'
+import { BanIcon, MessageIcon, RestrictIcon, TrashIcon } from '../../components/Icons'
 import Modal from '../../components/Modal'
 import { useAdminData } from './useAdminData'
 
-export default function UsersTab({ onExpired }: { onExpired: () => void }) {
+export default function UsersTab({ onExpired, onMessage }: { onExpired: () => void; onMessage: (id: string) => void }) {
   const { data: users, error, refresh } = useAdminData(getUsers, 10000, onExpired)
   const [busyId, setBusyId] = useState<string | null>(null)
   const [actionError, setActionError] = useState('')
@@ -61,6 +61,15 @@ export default function UsersTab({ onExpired }: { onExpired: () => void }) {
                   <td>{u.reports}</td>
                   <td>
                     <div className="admin-actions">
+                      <button
+                        className="icon-btn"
+                        title="Message"
+                        aria-label={`Message ${u.name}`}
+                        disabled={!hasProfile || u.fake}
+                        onClick={() => onMessage(u.id)}
+                      >
+                        <MessageIcon />
+                      </button>
                       <button
                         className={`icon-btn${u.restricted ? ' on' : ''}`}
                         title={u.restricted ? 'Unrestrict' : 'Restrict'}

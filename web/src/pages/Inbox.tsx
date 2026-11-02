@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
-import { errorText, getLikesReceived, listChats, photoUrls, subscribeMyChats, type ChatSummary, type InboxLike, type Profile } from '../lib/api'
+import {
+  errorText, getLikesReceived, getMyAdminChat, listChats, photoUrls, subscribeMyChats, type AdminChatSummary, type ChatSummary, type InboxLike, type Profile,
+} from '../lib/api'
 
 type Chat = ChatSummary & { profile: Profile }
-type Data = { likes: InboxLike[]; chats: Chat[]; urls: Record<string, string> }
+type Data = { likes: InboxLike[]; chats: Chat[]; admin: AdminChatSummary | null; urls: Record<string, string> }
 
 const when = (iso: string) => new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
 
@@ -24,10 +26,10 @@ export default function Inbox() {
 
   const load = useCallback(async () => {
     try {
-      const [likes, chats] = await Promise.all([getLikesReceived(uid), listChats()])
+      const [likes, chats, admin] = await Promise.all([getLikesReceived(uid), listChats(), getMyAdminChat()])
       const paths = [...likes, ...chats].map((r) => r.profile.photos[0]?.path).filter(Boolean) as string[]
       const urls = paths.length ? await photoUrls([...new Set(paths)]) : {}
-      setData({ likes, chats, urls })
+      setData({ likes, chats, admin, urls })
     } catch (e) {
       setError(errorText(e))
     }
@@ -38,7 +40,7 @@ export default function Inbox() {
     return subscribeMyChats(load)
   }, [load])
 
-  const unread = data?.chats.reduce((n, c) => n + c.unread, 0) ?? 0
+  const unread = (data?.chats.reduce((n, c) => n + c.unread, 0) ?? 0) + (data?.admin?.unread ?? 0)
   const avatar = (p: Profile) => {
     const photo = p.photos[0] && data?.urls[p.photos[0].path]
     return photo ? <img className="avatar" src={photo} alt={p.name} /> : <div className="avatar" />
@@ -73,7 +75,22 @@ export default function Inbox() {
       )}
       {data && tab === 'chats' && (
         <div className="list">
-          {!data.chats.length && <p className="muted">No chats yet. Match with someone or send a letter to start one.</p>}
+          {!data.chats.length && !data.admin && <p className="muted">No chats yet. Match with someone or send a letter to start one.</p>}
+          {data.admin && (() => {
+            const a = data.admin
+            const at = a.last_message_at ?? a.created_at
+            return (
+              <Link className="list-item chat-item inbox-admin" to="/chat/admin">
+                <div className="avatar" aria-hidden="true">K</div>
+                <div className="body">
+                  <strong>Admin</strong><span className="admin-tag">Kitho</span>
+                  <div><time dateTime={at}>{when(at)}</time></div>
+                  {a.last_body && <p className="chat-preview">{a.last_from_admin ? '' : 'You: '}{a.last_body}</p>}
+                </div>
+                {a.unread > 0 && <span className="badge" aria-label={`${a.unread} unread`}>{a.unread}</span>}
+              </Link>
+            )
+          })()}
           {data.chats.map((c) => {
             const label = chatLabel(c, uid)
             const at = c.last_message_at ?? c.created_at

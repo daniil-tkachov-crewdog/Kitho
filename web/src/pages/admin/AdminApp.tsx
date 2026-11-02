@@ -5,14 +5,16 @@ import StatsTab from './StatsTab'
 import UsersTab from './UsersTab'
 import FakeUsersTab from './FakeUsersTab'
 import ReportsTab from './ReportsTab'
+import AdminMessagesTab from './AdminMessagesTab'
 
-const TABS = ['Stats', 'Users', 'Fake users', 'Reports'] as const
+const TABS = ['Stats', 'Users', 'Fake users', 'Reports', 'Admin Messages'] as const
 type Tab = (typeof TABS)[number]
 
 /** Isolated admin panel at /admin: login screen, then header + left tab list. */
 export default function AdminApp() {
   const [loggedIn, setLoggedIn] = useState(() => !!getAdminToken())
   const [tab, setTab] = useState<Tab>('Stats')
+  const [openUser, setOpenUser] = useState<string | null>(null)
 
   const logout = useCallback(() => {
     clearAdminToken()
@@ -35,9 +37,10 @@ export default function AdminApp() {
         </nav>
         <main className="admin-main">
           {tab === 'Stats' && <StatsTab onExpired={logout} />}
-          {tab === 'Users' && <UsersTab onExpired={logout} />}
+          {tab === 'Users' && <UsersTab onExpired={logout} onMessage={(id) => { setOpenUser(id); setTab('Admin Messages') }} />}
           {tab === 'Fake users' && <FakeUsersTab onExpired={logout} />}
           {tab === 'Reports' && <ReportsTab onExpired={logout} />}
+          {tab === 'Admin Messages' && <AdminMessagesTab onExpired={logout} openUser={openUser} />}
         </main>
       </div>
     </div>

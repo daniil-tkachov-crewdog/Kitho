@@ -170,9 +170,60 @@ export async function listChats(): Promise<(ChatSummary & { profile: Profile })[
 }
 
 export async function unreadTotal(): Promise<number> {
-  const { data, error } = await supabase.rpc('list_my_chats')
+  const [chats, admin] = await Promise.all([supabase.rpc('list_my_chats'), getMyAdminChat()])
+  if (chats.error) throw chats.error
+  return (chats.data as ChatSummary[]).reduce((n, c) => n + c.unread, 0) + (admin?.unread ?? 0)
+}
+
+// ── Admin chat (one per user, with the Kitho admin) ─────────────────────────────────────
+export type AdminChatSummary = {
+  created_at: string
+  last_message_at: string | null
+  last_body: string | null
+  last_from_admin: boolean | null
+  unread: number
+  admin_read_at: string
+}
+export type AdminMessage = { id: string; user_id: string; from_admin: boolean; body: string; created_at: string }
+
+/** My chat with the admin, or null if there is none yet. */
+export async function getMyAdminChat(): Promise<AdminChatSummary | null> {
+  const { data, error } = await supabase.rpc('my_admin_chat')
   if (error) throw error
-  return (data as ChatSummary[]).reduce((n, c) => n + c.unread, 0)
+  return ((data as AdminChatSummary[])[0] ?? null)
+}
+
+export async function getAdminMessages(): Promise<AdminMessage[]> {
+  const { data, error } = await supabase
+    .from('admin_messages')
+    .select('id, user_id, from_admin, body, created_at')
+    .order('created_at', { ascending: true })
+  if (error) throw error
+  return data as AdminMessage[]
+}
+
+export async function sendAdminMessage(body: string) {
+  const { error } = await supabase.rpc('send_admin_message', { p_body: body })
+  if (error) throw error
+}
+
+export async function markAdminChatRead() {
+  const { error } = await supabase.rpc('mark_admin_chat_read')
+  if (error) throw error
+}
+
+/** Live updates for my admin chat: new messages and admin read receipts. Returns an unsubscribe function. */
+export function subscribeAdminChat(myId: string, onMessage: (m: AdminMessage) => void, onRead: (adminReadAt: string) => void) {
+  const channel = supabase
+    .channel(`admin-chat:${crypto.randomUUID()}`)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'admin_messages', filter: `user_id=eq.${myId}` }, (p) =>
+      onMessage(p.new as AdminMessage),
+    )
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'admin_chats', filter: `user_id=eq.${myId}` }, (p) =>
+      onRead((p.new as { admin_last_read_at: string }).admin_last_read_at),
+    )
+    .subscribe()
+  return () => void supabase.removeChannel(channel)
 }
 
 export type ChatDetail = {
@@ -289,6 +340,8 @@ export function subscribeMyChats(onChange: () => void) {
     .channel(`my-chats:${crypto.randomUUID()}`)
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, onChange)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'chats' }, onChange)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'admin_messages' }, onChange)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'admin_chats' }, onChange)
     .subscribe()
   return () => void supabase.removeChannel(channel)
 }
