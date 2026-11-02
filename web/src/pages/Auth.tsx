@@ -80,6 +80,16 @@ export default function Auth() {
     })
   }
 
+  // Google OAuth: leaves the page, returns signed in. New users land on /profile via the app guard.
+  const onGoogle = () =>
+    run(async () => {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: `${window.location.origin}/feed` },
+      })
+      if (error) throw error
+    })
+
   const onResend = () =>
     run(async () => {
       const { error } = await supabase.auth.resend({ type: 'signup', email: email.trim() })
@@ -152,9 +162,9 @@ export default function Auth() {
             </form>
             <div className="divider">or</div>
             <div className="social">
-              <button className="btn btn-ghost" disabled title="Coming soon"><GoogleIcon /> {mode === 'login' ? 'Log in' : 'Sign up'} with Google</button>
+              <button className="btn btn-ghost" disabled={busy} onClick={onGoogle}><GoogleIcon /> {mode === 'login' ? 'Log in' : 'Sign up'} with Google</button>
               <button className="btn btn-ghost" disabled title="Coming soon"><AppleIcon /> {mode === 'login' ? 'Log in' : 'Sign up'} with Apple</button>
-              <p className="center muted" style={{ fontSize: '0.8rem', margin: 0 }}>Google and Apple sign-in coming soon.</p>
+              <p className="center muted" style={{ fontSize: '0.8rem', margin: 0 }}>Apple sign-in coming soon.</p>
             </div>
             {mode === 'signup' && (
               <p className="center muted" style={{ fontSize: '0.82rem', marginTop: 16, marginBottom: 0 }}>
