@@ -1,4 +1,6 @@
 // Admin panel API client. Every call goes to its own Edge Function with the admin token.
+import { supabase } from './supabase'
+
 const BASE = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`
 const KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string
 const TOKEN_KEY = 'kitho_admin_token'
@@ -68,6 +70,44 @@ export const getUsers = () => call<{ users: AdminUser[] }>('admin-users').then((
 export const setRestricted = (id: string, restricted: boolean) => call('admin-restrict', { id, restricted })
 export const setBanned = (id: string, banned: boolean) => call('admin-ban', { id, banned })
 export const deleteUser = (id: string) => call('admin-delete-user', { id })
+
+export const FAKE_EMAIL = 'admin@kitho.co.uk'
+export type FakePhoto = { position: number; path: string; url: string }
+export type FakeUser = {
+  id: string
+  personal_id: string | null
+  name: string
+  phone: string | null
+  location: string
+  age: number
+  description: string
+  reports: number
+  hidden: boolean
+  created_at: string
+  photos: FakePhoto[]
+}
+export type FakeUserInput = {
+  id: string
+  exists: boolean
+  name: string
+  age: number
+  location: string
+  description: string
+  phone: string | null
+  photos: (string | null)[] // storage path per slot (1–3)
+}
+export const getFakeUsers = () => call<{ users: FakeUser[] }>('admin-fake-users').then((r) => r.users)
+export const saveFakeUser = (input: FakeUserInput) => call('admin-fake-save', input)
+export const setHidden = (id: string, hidden: boolean) => call('admin-fake-hide', { id, hidden })
+export const deleteFakeUser = (id: string) => call('admin-fake-delete', { id })
+
+/** Uploads one photo for a fake profile through a signed upload URL. Returns its storage path. */
+export async function uploadFakePhoto(id: string, file: File): Promise<string> {
+  const { path, token } = await call<{ path: string; token: string }>('admin-fake-photo-upload', { id, type: file.type })
+  const { error } = await supabase.storage.from('photos').uploadToSignedUrl(path, token, file, { contentType: file.type })
+  if (error) throw error
+  return path
+}
 
 export type AdminReport = {
   id: string

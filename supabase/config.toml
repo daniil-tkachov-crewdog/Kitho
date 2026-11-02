@@ -25,3 +25,18 @@ verify_jwt = false
 
 [functions.admin-report-settings]
 verify_jwt = false
+
+[functions.admin-fake-users]
+verify_jwt = false
+
+[functions.admin-fake-photo-upload]
+verify_jwt = false
+
+[functions.admin-fake-save]
+verify_jwt = false
+
+[functions.admin-fake-hide]
+verify_jwt = false
+
+[functions.admin-fake-delete]
+verify_jwt = false

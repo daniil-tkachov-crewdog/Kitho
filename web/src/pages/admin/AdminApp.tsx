@@ -3,9 +3,10 @@ import { clearAdminToken, getAdminToken } from '../../lib/admin'
 import AdminLogin from './AdminLogin'
 import StatsTab from './StatsTab'
 import UsersTab from './UsersTab'
+import FakeUsersTab from './FakeUsersTab'
 import ReportsTab from './ReportsTab'
 
-const TABS = ['Stats', 'Users', 'Reports'] as const
+const TABS = ['Stats', 'Users', 'Fake users', 'Reports'] as const
 type Tab = (typeof TABS)[number]
 
 /** Isolated admin panel at /admin: login screen, then header + left tab list. */
@@ -35,6 +36,7 @@ export default function AdminApp() {
         <main className="admin-main">
           {tab === 'Stats' && <StatsTab onExpired={logout} />}
           {tab === 'Users' && <UsersTab onExpired={logout} />}
+          {tab === 'Fake users' && <FakeUsersTab onExpired={logout} />}
           {tab === 'Reports' && <ReportsTab onExpired={logout} />}
         </main>
       </div>
