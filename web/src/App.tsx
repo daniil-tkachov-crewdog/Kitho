@@ -14,6 +14,8 @@ import Settings from './pages/Settings'
 import Terms from './pages/Terms'
 import Privacy from './pages/Privacy'
 import Guidelines from './pages/Guidelines'
+import Cookies from './pages/Cookies'
+import CookieBanner from './components/CookieBanner'
 import Faq from './pages/Faq'
 import Contact from './pages/Contact'
 import NotFound from './pages/NotFound'
@@ -38,6 +40,7 @@ export default function App() {
       <BrowserRouter>
         <ScrollToTop />
         <VisitTracker />
+        <CookieBanner />
         <Routes>
           <Route path="admin" element={<AdminApp />} />
           <Route element={<PublicLayout />}>
@@ -46,6 +49,7 @@ export default function App() {
             <Route path="terms" element={<Terms />} />
             <Route path="privacy" element={<Privacy />} />
             <Route path="guidelines" element={<Guidelines />} />
+            <Route path="cookies" element={<Cookies />} />
             <Route path="faq" element={<Faq />} />
             <Route path="contact" element={<Contact />} />
             <Route path="*" element={<NotFound />} />

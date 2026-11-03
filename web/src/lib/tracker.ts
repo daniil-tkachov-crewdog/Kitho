@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { supabase } from './supabase'
 import { useAuth } from './auth'
+import { useConsent } from './consent'
 
 const VISITOR_KEY = 'kitho_visitor_id'
 
@@ -18,13 +19,14 @@ function visitorId(): string {
   }
 }
 
-/** Records a visit on page load and whenever the signed-in user changes. Never on the admin panel. */
+/** Records a visit (only after cookie consent) on page load and whenever the signed-in user changes. Never on the admin panel. */
 export function useVisitTracker() {
   const { session, loading } = useAuth()
+  const consent = useConsent()
   const isAdmin = useLocation().pathname.startsWith('/admin')
   const userId = session?.user.id ?? null
   useEffect(() => {
-    if (loading || isAdmin) return
+    if (loading || isAdmin || consent !== 'accepted') return
     void supabase.functions.invoke('track-visit', { body: { visitor_id: visitorId() } }).catch(() => {})
-  }, [loading, isAdmin, userId])
+  }, [loading, isAdmin, userId, consent])
 }

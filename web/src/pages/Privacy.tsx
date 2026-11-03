@@ -40,7 +40,8 @@ export default function Privacy() {
       <ul>
         <li>Location (only if you allow it in your device settings)</li>
         <li>Device data (device type, operating system, app version, identifiers)</li>
-        <li>Usage data (how you use the app, log data, IP address)</li>
+        <li>Server logs kept by our hosting providers (such as IP address and request times) for security</li>
+        <li>Visit data, only if you accept optional cookies: a random visitor ID, your account if signed in, approximate location (city and country, worked out from your IP address), device type, browser and time of visit</li>
       </ul>
       <p><strong>Data from third parties</strong></p>
       <ul>
@@ -57,7 +58,8 @@ export default function Privacy() {
         <li><strong>Show your profile and let you chat with other users</strong> (profile, photos, bio, messages). Lawful basis: contract.</li>
         <li><strong>Show people near you</strong> (location). Lawful basis: consent.</li>
         <li><strong>Keep the service safe: moderation, reports, fraud and abuse prevention</strong> (profile, messages, device and usage data). Lawful basis: legitimate interests (keeping users safe) and legal obligation (Online Safety Act 2023).</li>
-        <li><strong>Improve and fix the app</strong> (device and usage data). Lawful basis: legitimate interests (improving our service).</li>
+        <li><strong>Count visits, improve Kitho and protect it from abuse</strong> (visit data). Lawful basis: consent (cookie banner).</li>
+        <li><strong>Fix the app and keep it secure</strong> (server logs). Lawful basis: legitimate interests.</li>
         <li><strong>Send marketing emails</strong> (email). Lawful basis: consent.</li>
         <li><strong>Send push notifications</strong> (device identifier). Lawful basis: consent.</li>
         <li><strong>Respond to your requests and complaints</strong> (contact details, messages). Lawful basis: legitimate interests and legal obligation.</li>
@@ -82,7 +84,7 @@ export default function Privacy() {
         <li><strong>Other users:</strong> your profile, photos and messages are visible to other users as the app is designed to work.</li>
         <li>
           <strong>Service providers (processors)</strong> acting on our instructions: Supabase (database,
-          authentication and storage; region: Ireland), Render (hosting), and Google and Apple (sign-in).
+          authentication and storage; region: Ireland), Render (hosting), Google and Apple (sign-in), and ipwho.is (approximate location lookup from your IP address, only if you accept optional cookies).
         </li>
         <li><strong>Authorities:</strong> the police, regulators (such as Ofcom or the ICO) or courts, when the law requires it or to protect users from serious harm.</li>
       </ul>
@@ -94,12 +96,13 @@ export default function Privacy() {
         Render in Oregon, United States, so your data is processed there too. Google and Apple are also based in the
         United States. For these transfers we rely on UK-approved safeguards: the UK-US Data Bridge where the provider
         is certified, or otherwise the International Data Transfer Agreement or the UK Addendum to the EU Standard
-        Contractual Clauses in the provider’s data processing terms. [CONFIRM Render and Supabase transfer mechanism]
+        Contractual Clauses in the provider’s data processing terms. [CONFIRM Render, Supabase and ipwho.is transfer mechanism]
       </p>
 
       <h2>8. How long we keep your data</h2>
       <ul>
         <li><strong>Account data, photos, bio and messages:</strong> deleted immediately when you delete your account. [CONFIRM backup retention period, if any]</li>
+        <li><strong>Visit data:</strong> deleted after 6 months.</li>
         <li><strong>Moderation and safety reports:</strong> kept only as long as needed to handle the report and protect users, [PERIOD].</li>
         <li><strong>Records required by law:</strong> kept for the period the law requires.</li>
       </ul>
@@ -129,7 +132,7 @@ export default function Privacy() {
       </p>
 
       <h2>11. Cookies and similar technologies</h2>
-      <p>See our Cookie Policy [link].</p>
+      <p>See our <Link to="/cookies">Cookie Policy</Link>.</p>
 
       <h2>12. Security</h2>
       <p>

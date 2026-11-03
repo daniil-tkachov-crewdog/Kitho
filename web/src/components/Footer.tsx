@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { resetConsent } from '../lib/consent'
 
 export default function Footer() {
   return (
@@ -9,6 +10,8 @@ export default function Footer() {
           <Link to="/terms">Terms of Use</Link>
           <Link to="/privacy">Privacy Policy</Link>
           <Link to="/guidelines">Community Guidelines</Link>
+          <Link to="/cookies">Cookie Policy</Link>
+          <button type="button" className="footer-link-btn" onClick={resetConsent}>Cookie settings</button>
           <Link to="/contact">Contact Us</Link>
           <Link to="/faq">FAQ</Link>
         </nav>

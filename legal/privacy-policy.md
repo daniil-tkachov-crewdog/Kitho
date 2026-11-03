@@ -27,7 +27,8 @@ Kitho is for adults only. You must be at least **18** years old to use Kitho. If
 **Data collected automatically**
 - Location (only if you allow it in your device settings)
 - Device data (device type, operating system, app version, identifiers)
-- Usage data (how you use the app, log data, IP address)
+- Server logs kept by our hosting providers (such as IP address and request times) for security
+- Visit data, only if you accept optional cookies: a random visitor ID, your account if signed in, approximate location (city and country, worked out from your IP address), device type, browser and time of visit
 
 **Data from third parties**
 - If you sign in with Google or Apple, we receive your name, email address and account identifier from them.
@@ -42,7 +43,8 @@ We do not knowingly collect special category data (such as sexual orientation, r
 | Show your profile and let you chat with other users | Profile, photos, bio, messages | Contract |
 | Show people near you | Location | Consent |
 | Keep the service safe: moderation, reports, fraud and abuse prevention | Profile, messages, device and usage data | Legitimate interests (keeping users safe); legal obligation (Online Safety Act 2023) |
-| Improve and fix the app | Device and usage data | Legitimate interests (improving our service) |
+| Count visits, improve Kitho and protect it from abuse | Visit data | Consent (cookie banner) |
+| Fix the app and keep it secure | Server logs | Legitimate interests |
 | Send marketing emails | Email | Consent |
 | Send push notifications | Device identifier | Consent |
 | Respond to your requests and complaints | Contact details, messages | Legitimate interests / legal obligation |
@@ -64,17 +66,19 @@ An administrator reviews every restriction and ban and can reverse it if it was 
   - Supabase (database, authentication and storage), region: Ireland
   - Render (hosting)
   - Google and Apple (sign-in)
+  - ipwho.is (approximate location lookup from your IP address, only if you accept optional cookies)
 - **Authorities:** the police, regulators (such as Ofcom or the ICO) or courts, when the law requires it or to protect users from serious harm.
 
 We do not sell your personal data.
 
 ## 7. Transfers outside the UK
 
-Our database is stored in Ireland, which the UK treats as adequate. Our application servers are hosted by Render in Oregon, United States, so your data is processed there too. Google and Apple are also based in the United States. For these transfers we rely on UK-approved safeguards: the UK-US Data Bridge where the provider is certified, or otherwise the International Data Transfer Agreement or the UK Addendum to the EU Standard Contractual Clauses in the provider's data processing terms. **[CONFIRM Render and Supabase transfer mechanism]**
+Our database is stored in Ireland, which the UK treats as adequate. Our application servers are hosted by Render in Oregon, United States, so your data is processed there too. Google and Apple are also based in the United States. For these transfers we rely on UK-approved safeguards: the UK-US Data Bridge where the provider is certified, or otherwise the International Data Transfer Agreement or the UK Addendum to the EU Standard Contractual Clauses in the provider's data processing terms. **[CONFIRM Render, Supabase and ipwho.is transfer mechanism]**
 
 ## 8. How long we keep your data
 
 - **Account data, photos, bio and messages:** deleted immediately when you delete your account. **[CONFIRM backup retention period, if any]**
+- **Visit data:** deleted after 6 months.
 - **Moderation and safety reports:** kept only as long as needed to handle the report and protect users, **[PERIOD]**.
 - **Records required by law:** kept for the period the law requires.
 
@@ -99,7 +103,7 @@ We only send marketing emails and push notifications if you agree. You can unsub
 
 ## 11. Cookies and similar technologies
 
-See our Cookie Policy **[link]**.
+See our Cookie Policy (/cookies).
 
 ## 12. Security
 
