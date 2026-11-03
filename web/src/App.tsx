@@ -13,6 +13,7 @@ import Profile from './pages/Profile'
 import Settings from './pages/Settings'
 import Terms from './pages/Terms'
 import Privacy from './pages/Privacy'
+import Guidelines from './pages/Guidelines'
 import Faq from './pages/Faq'
 import Contact from './pages/Contact'
 import NotFound from './pages/NotFound'
@@ -44,6 +45,7 @@ export default function App() {
             <Route path="auth" element={<Auth />} />
             <Route path="terms" element={<Terms />} />
             <Route path="privacy" element={<Privacy />} />
+            <Route path="guidelines" element={<Guidelines />} />
             <Route path="faq" element={<Faq />} />
             <Route path="contact" element={<Contact />} />
             <Route path="*" element={<NotFound />} />

@@ -8,6 +8,7 @@ export default function Footer() {
         <nav aria-label="Footer">
           <Link to="/terms">Terms of Use</Link>
           <Link to="/privacy">Privacy Policy</Link>
+          <Link to="/guidelines">Community Guidelines</Link>
           <Link to="/contact">Contact Us</Link>
           <Link to="/faq">FAQ</Link>
         </nav>
