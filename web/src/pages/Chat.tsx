@@ -2,11 +2,11 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
 import {
-  declineChat, errorText, getChat, getMessages, likeProfile, markChatRead, photoUrls, reportProfile, sendMessage, subscribeChat,
-  toggleMessageLike, REPORT_REASONS, type ChatDetail, type Message, type ReportReason,
+  declineChat, errorText, getBlockState, getChat, getMessages, likeProfile, toggleBlock, markChatRead, photoUrls, reportProfile, sendMessage, subscribeChat,
+  toggleMessageLike, REPORT_REASONS, type BlockState, type ChatDetail, type Message, type ReportReason,
 } from '../lib/api'
 import Modal from '../components/Modal'
-import { AlertIcon, ChevronLeftIcon, HeartIcon } from '../components/Icons'
+import { AlertIcon, BanIcon, ChevronLeftIcon, HeartIcon } from '../components/Icons'
 
 const time = (iso: string) => new Date(iso).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })
 
@@ -23,6 +23,8 @@ export default function Chat() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [reportOpen, setReportOpen] = useState(false)
+  const [blockOpen, setBlockOpen] = useState(false)
+  const [block, setBlock] = useState<BlockState>({ i_blocked: false, blocked_me: false })
   const endRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -34,6 +36,7 @@ export default function Chat() {
         if (!c) return setMissing(true)
         setChat(c)
         setMessages(msgs)
+        getBlockState(c.profile.id).then((b) => !cancelled && setBlock(b), () => {})
         const path = c.profile.photos[0]?.path
         if (path) setPhoto((await photoUrls([path]))[path] ?? null)
         markChatRead(id).catch(() => {})
@@ -107,7 +110,8 @@ export default function Chat() {
   const waiting = chat.status === 'pending' && isSender
   const letterForMe = chat.status === 'pending' && !isSender
   const closed = chat.status === 'declined'
-  const canWrite = !waiting && !closed
+  const blocked = block.i_blocked || block.blocked_me
+  const canWrite = !waiting && !closed && !blocked
 
   return (
     <div className="container narrow chat">
@@ -120,6 +124,18 @@ export default function Chat() {
         </div>
         <button className="chat-report" onClick={() => setReportOpen(true)} aria-label={`Report ${p.name}`} title="Report">
           <AlertIcon />
+        </button>
+        <button
+          className={`chat-block${block.i_blocked ? ' on' : ''}`}
+          onClick={() => (block.i_blocked
+            ? run(async () => setBlock({ ...block, i_blocked: await toggleBlock(p.id) }))
+            : setBlockOpen(true))}
+          disabled={busy}
+          aria-label={block.i_blocked ? `Unblock ${p.name}` : `Block ${p.name}`}
+          aria-pressed={block.i_blocked}
+          title={block.i_blocked ? 'Unblock' : 'Block'}
+        >
+          <BanIcon />
         </button>
       </div>
 
@@ -159,9 +175,11 @@ export default function Chat() {
       </div>
 
       {error && <div className="alert alert-error">{error}</div>}
-      {waiting && <p className="muted chat-note">Letter sent. You can write again once {p.name} replies.</p>}
-      {closed && <p className="muted chat-note">{isSender ? `${p.name} declined your letter.` : 'You declined this letter.'} This conversation is closed.</p>}
-      {letterForMe && (
+      {block.i_blocked && <p className="muted chat-note">You blocked {p.name}. Unblock to message each other again.</p>}
+      {!block.i_blocked && block.blocked_me && <p className="muted chat-note">You can’t message this user.</p>}
+      {!blocked && waiting && <p className="muted chat-note">Letter sent. You can write again once {p.name} replies.</p>}
+      {!blocked && closed && <p className="muted chat-note">{isSender ? `${p.name} declined your letter.` : 'You declined this letter.'} This conversation is closed.</p>}
+      {!blocked && letterForMe && (
         <div className="chat-letter-actions">
           <span className="muted">{p.name} sent you a letter. Reply, like back, or decline.</span>
           <div className="actions">
@@ -191,6 +209,18 @@ export default function Chat() {
           />
           <button className="btn btn-primary" disabled={busy || !body.trim()}>Send</button>
         </form>
+      )}
+      {blockOpen && (
+        <Modal title={`Block ${p.name}?`} onClose={() => setBlockOpen(false)}>
+          <p className="muted">You won’t be able to message each other and you’ll stop seeing each other in Discover. You can unblock any time from this chat.</p>
+          <div className="modal-actions">
+            <button type="button" className="btn btn-ghost" onClick={() => setBlockOpen(false)}>Cancel</button>
+            <button className="btn btn-danger" disabled={busy} onClick={() => run(async () => {
+              setBlock({ ...block, i_blocked: await toggleBlock(p.id) })
+              setBlockOpen(false)
+            })}>Block</button>
+          </div>
+        </Modal>
       )}
       {reportOpen && (
         <ReportModal

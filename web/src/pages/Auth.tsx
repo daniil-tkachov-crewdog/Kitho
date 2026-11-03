@@ -1,8 +1,8 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
-import { errorText } from '../lib/api'
+import { checkEmail, errorText } from '../lib/api'
 import { AppleIcon, GoogleIcon } from '../components/Icons'
 
 type Mode = 'login' | 'signup' | 'verify'
@@ -20,10 +20,12 @@ export default function Auth() {
   const [error, setError] = useState('')
   const [info, setInfo] = useState('')
 
-  useEffect(() => {
+  /** Switches tab and clears messages; `notice` is shown on the new tab. */
+  function switchMode(next: Mode, notice = '') {
+    setMode(next)
     setError('')
-    setInfo('')
-  }, [mode])
+    setInfo(notice)
+  }
 
   if (session && mode !== 'verify') return <Navigate to="/feed" replace />
 
@@ -45,8 +47,7 @@ export default function Auth() {
       const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
       if (error?.code === 'email_not_confirmed') {
         await supabase.auth.resend({ type: 'signup', email: email.trim() })
-        setMode('verify')
-        setInfo('Your email isn’t verified yet. We sent you a new code.')
+        switchMode('verify', 'Your email isn’t verified yet. We sent you a new code.')
         return
       }
       if (error) throw error
@@ -59,6 +60,13 @@ export default function Auth() {
     if (password.length < 8) return setError('Password must be at least 8 characters.')
     if (password !== password2) return setError('Passwords don’t match.')
     run(async () => {
+      const existing = await checkEmail(email.trim())
+      if (existing === 'banned') throw new Error('This email can’t be used to create an account.')
+      if (existing === 'exists') {
+        setPassword('')
+        setPassword2('')
+        return switchMode('login', 'This email already has an account. Log in with your password, or with Google / Apple.')
+      }
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
@@ -66,8 +74,7 @@ export default function Auth() {
       })
       if (error) throw error
       if (data.session) return navigate('/profile', { replace: true }) // email confirmation disabled
-      setMode('verify')
-      setInfo(`We sent a verification code to ${email.trim()}.`)
+      switchMode('verify', `We sent a verification code to ${email.trim()}.`)
     })
   }
 
@@ -123,14 +130,14 @@ export default function Auth() {
             <p className="center muted" style={{ marginTop: 16, marginBottom: 0 }}>
               Didn’t get it? <button type="button" className="linkish" onClick={onResend} disabled={busy}>Resend code</button>
               {' · '}
-              <button type="button" className="linkish" onClick={() => setMode('login')}>Back</button>
+              <button type="button" className="linkish" onClick={() => switchMode('login')}>Back</button>
             </p>
           </form>
         ) : (
           <>
             <div className="switcher" role="tablist">
-              <button role="tab" aria-selected={mode === 'login'} className={mode === 'login' ? 'on' : ''} onClick={() => setMode('login')}>Log in</button>
-              <button role="tab" aria-selected={mode === 'signup'} className={mode === 'signup' ? 'on' : ''} onClick={() => setMode('signup')}>Sign up</button>
+              <button role="tab" aria-selected={mode === 'login'} className={mode === 'login' ? 'on' : ''} onClick={() => switchMode('login')}>Log in</button>
+              <button role="tab" aria-selected={mode === 'signup'} className={mode === 'signup' ? 'on' : ''} onClick={() => switchMode('signup')}>Sign up</button>
             </div>
             {info && <div className="alert alert-ok">{info}</div>}
             {error && <div className="alert alert-error">{error}</div>}

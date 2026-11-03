@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom'
 import { isProfileComplete, useAuth } from '../lib/auth'
-import { subscribeMyChats, unreadTotal } from '../lib/api'
+import { errorText, setBirthDate, subscribeMyChats, unreadTotal } from '../lib/api'
+import DobWheel, { ageFrom, defaultDob, dobToIso, type Dob } from './DobWheel'
 import { supabase } from '../lib/supabase'
 import Logo from './Logo'
 import Footer from './Footer'
@@ -32,7 +33,7 @@ export function PublicLayout() {
 
 /** Signed-in area. Redirects to /auth when logged out and to /profile until the profile is complete. */
 export function AppLayout() {
-  const { session, profile, banned, loading } = useAuth()
+  const { session, profile, status, banned, loading } = useAuth()
   const location = useLocation()
   const unread = useUnreadCount(!!session && !banned, location.pathname)
 
@@ -59,6 +60,44 @@ export function AppLayout() {
       <main>
         <Outlet />
       </main>
+      {profile && status && !status.birth_date && <DobPrompt />}
+    </div>
+  )
+}
+
+/** Existing users without a date of birth must add one before using the app (can't be dismissed). */
+function DobPrompt() {
+  const { session, refreshProfile } = useAuth()
+  const [dob, setDob] = useState<Dob>(defaultDob)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  const age = ageFrom(dob)
+
+  async function save() {
+    if (age < 18) return setError('You must be 18 or over to use Kitho.')
+    setBusy(true)
+    setError('')
+    try {
+      await setBirthDate(session!.user.id, dobToIso(dob))
+      await refreshProfile()
+    } catch (e) {
+      setError(errorText(e))
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="modal-backdrop">
+      <div className="modal" role="dialog" aria-modal="true" aria-label="Add your date of birth">
+        <h3>Add your date of birth</h3>
+        <p className="muted">Kitho is for adults only. Your age is calculated from it and can’t be changed later.</p>
+        {error && <div className="alert alert-error">{error}</div>}
+        <DobWheel value={dob} onChange={setDob} />
+        <div className="dob-age"><span className="muted">Your age</span><strong>{age}</strong></div>
+        <div className="modal-actions" style={{ marginTop: 20 }}>
+          <button className="btn btn-primary" disabled={busy} onClick={save}>{busy ? 'Saving…' : 'Confirm'}</button>
+        </div>
+      </div>
     </div>
   )
 }

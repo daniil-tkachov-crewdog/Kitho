@@ -1,19 +1,22 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { isProfileComplete, useAuth } from '../lib/auth'
-import { deletePhoto, errorText, getMyPhone, MAX_PHOTOS, photoUrls, saveProfile, uploadPhoto, type Photo } from '../lib/api'
+import { deletePhoto, errorText, getMyPhone, MAX_PHOTOS, photoUrls, saveProfile, setFrozen, uploadPhoto, type Photo } from '../lib/api'
 import { prepareImage } from '../lib/image'
 import { LockIcon } from '../components/Icons'
+import DobWheel, { ageFrom, defaultDob, dobToIso, type Dob } from '../components/DobWheel'
 
 type Slot = { kind: 'existing'; photo: Photo; url: string } | { kind: 'new'; file: File; url: string } | null
 
 export default function Profile() {
-  const { session, profile, refreshProfile } = useAuth()
+  const { session, profile, status, refreshProfile } = useAuth()
   const navigate = useNavigate()
   const uid = session!.user.id
   const [editing, setEditing] = useState(!profile)
   const [name, setName] = useState('')
   const [age, setAge] = useState('')
+  const [dob, setDob] = useState<Dob>(defaultDob)
+  const [freezeBusy, setFreezeBusy] = useState(false)
   const [location, setLocation] = useState('')
   const [description, setDescription] = useState('')
   const [phone, setPhone] = useState('')
@@ -61,16 +64,15 @@ export default function Profile() {
     e.preventDefault()
     setError('')
     setSaved(false)
-    const ageNum = Number(age)
     if (!name.trim() || !location.trim()) return setError('Please fill in your name and location.')
-    if (!Number.isInteger(ageNum) || ageNum < 1 || ageNum > 120) return setError('Please enter a valid age.')
+    if (!profile && ageFrom(dob) < 18) return setError('You must be 18 or over to use Kitho.')
     if (!slots.some(Boolean)) return setError('Please add at least one photo.')
 
     setBusy(true)
     try {
       await saveProfile(uid, {
         name: name.trim(),
-        age: ageNum,
+        ...(profile ? {} : { birth_date: dobToIso(dob) }),
         location: location.trim(),
         description: description.trim(),
         phone: phone.trim() || null,
@@ -93,6 +95,19 @@ export default function Profile() {
       setError(errorText(err))
     } finally {
       setBusy(false)
+    }
+  }
+
+  async function onToggleFreeze() {
+    setFreezeBusy(true)
+    setError('')
+    try {
+      await setFrozen(uid, !status?.frozen)
+      await refreshProfile()
+    } catch (err) {
+      setError(errorText(err))
+    } finally {
+      setFreezeBusy(false)
     }
   }
 
@@ -163,16 +178,30 @@ export default function Profile() {
           <div className="profile-col">
             {editing ? (
               <section className="panel">
-                <div className="grid-2">
-                  <div className="field">
-                    <label htmlFor="name">Name</label>
-                    <input id="name" className="input" maxLength={50} value={name} onChange={(e) => setName(e.target.value)} disabled={ro} required />
+                {profile ? (
+                  <div className="grid-2">
+                    <div className="field">
+                      <label htmlFor="name">Name</label>
+                      <input id="name" className="input" maxLength={50} value={name} onChange={(e) => setName(e.target.value)} disabled={ro} required />
+                    </div>
+                    <div className="field">
+                      <label htmlFor="age">Age <span className="hint">(from your date of birth)</span></label>
+                      <input id="age" className="input" value={age} disabled readOnly />
+                    </div>
                   </div>
-                  <div className="field">
-                    <label htmlFor="age">Age</label>
-                    <input id="age" className="input" type="number" min={1} max={120} value={age} onChange={(e) => setAge(e.target.value)} disabled={ro} required />
-                  </div>
-                </div>
+                ) : (
+                  <>
+                    <div className="field">
+                      <label htmlFor="name">Name</label>
+                      <input id="name" className="input" maxLength={50} value={name} onChange={(e) => setName(e.target.value)} disabled={ro} required />
+                    </div>
+                    <div className="field">
+                      <label>Date of birth <span className="hint">(can’t be changed later)</span></label>
+                      <DobWheel value={dob} onChange={setDob} />
+                      <div className="dob-age"><span className="muted">Your age</span><strong>{ageFrom(dob)}</strong></div>
+                    </div>
+                  </>
+                )}
                 <div className="field">
                   <label htmlFor="location">Location</label>
                   <input id="location" className="input" maxLength={100} placeholder="City, Country" value={location} onChange={(e) => setLocation(e.target.value)} disabled={ro} required />
@@ -211,6 +240,22 @@ export default function Profile() {
                 </>
               )}
             </div>
+
+            {profile && (
+              <section className="panel freeze-box">
+                <div>
+                  <h3 style={{ margin: 0 }}>{status?.frozen ? 'Profile frozen' : 'Freeze profile'}</h3>
+                  <p className="muted">
+                    {status?.frozen
+                      ? 'You’re hidden from Discover. Open chats stay open.'
+                      : 'Hide your profile from Discover. Open chats stay open.'}
+                  </p>
+                </div>
+                <button type="button" className={`btn ${status?.frozen ? 'btn-primary' : 'btn-ghost'}`} disabled={freezeBusy} onClick={onToggleFreeze}>
+                  {status?.frozen ? 'Unfreeze' : 'Freeze'}
+                </button>
+              </section>
+            )}
           </div>
         </div>
       </form>

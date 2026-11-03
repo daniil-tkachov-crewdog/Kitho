@@ -534,3 +534,32 @@ a.chat-item:hover { border-color: var(--input-border); }
 .footer-link-btn { background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; text-decoration: none; }
 .footer nav .footer-link-btn { color: var(--text); font-size: 14px; }
 .footer nav .footer-link-btn:hover { color: var(--muted); }
+
+/* Date-of-birth wheel */
+.wheel { position: relative; display: grid; grid-template-columns: 1fr 1.7fr 1.2fr; gap: 4px; height: 200px; padding: 0 8px; background: var(--surface); border: 1px solid var(--input-border); border-radius: var(--radius-input); overflow: hidden; }
+.wheel::before { content: ''; position: absolute; left: 8px; right: 8px; top: 80px; height: 40px; border-radius: 12px; background: var(--surface-2); pointer-events: none; }
+.wheel-col { position: relative; height: 200px; overflow-y: auto; scroll-snap-type: y mandatory; padding: 80px 0; scrollbar-width: none; overscroll-behavior: contain; outline: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 35%, #000 65%, transparent); mask-image: linear-gradient(to bottom, transparent, #000 35%, #000 65%, transparent); }
+.wheel-col::-webkit-scrollbar { display: none; }
+.wheel-col:focus-visible { box-shadow: inset 0 0 0 2px var(--accent-soft); border-radius: 12px; }
+.wheel-item { height: 40px; display: grid; place-items: center; scroll-snap-align: center; font-size: 16px; color: var(--muted); cursor: pointer; user-select: none; transition: color 0.15s ease, transform 0.15s ease; }
+.wheel-item.on { color: var(--text); font-weight: 600; transform: scale(1.06); }
+.dob-age { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 14px; }
+.dob-age strong { font-size: 15px; }
+
+/* Freeze */
+.freeze-box { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.freeze-box p { margin: 4px 0 0; font-size: 14px; }
+.freeze-box .btn { height: 40px; flex-shrink: 0; }
+.frozen-badge { display: inline-block; margin-left: 8px; padding: 2px 8px; border-radius: 999px; background: #dbeafe; color: #1e40af; font-size: 12px; font-weight: 600; vertical-align: middle; }
+
+/* Chat block */
+.chat-block { display: inline-flex; padding: 8px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); cursor: pointer; }
+.chat-block:hover, .chat-block.on { color: var(--danger); background: var(--surface); }
+.chat-block svg { width: 22px; height: 22px; }
+
+/* Admin period chips */
+.period-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+.period-chips button { height: 34px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); font: inherit; font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; }
+.period-chips button.on { background: var(--text); border-color: var(--text); color: #fff; }
+.load-more { display: flex; justify-content: center; margin-top: 12px; }

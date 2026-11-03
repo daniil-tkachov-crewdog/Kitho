@@ -15,7 +15,7 @@ export type Profile = {
 }
 export type ProfileInput = {
   name: string
-  age: number
+  birth_date?: string
   location: string
   description: string
   phone: string | null
@@ -41,11 +41,48 @@ export async function getMyPhone(): Promise<string | null> {
   return data?.[0]?.phone ?? null
 }
 
-/** Whether my account is banned (banned users are locked out of the app). */
-export async function getMyBanned(): Promise<boolean> {
+export type MyStatus = { banned: boolean; birth_date: string | null; frozen: boolean }
+
+/** My private status: banned (locked out of the app), birth date (null → must be asked), frozen. */
+export async function getMyStatus(): Promise<MyStatus> {
   const { data, error } = await supabase.rpc('get_my_status')
   if (error) throw error
-  return data?.[0]?.banned ?? false
+  const r = data?.[0]
+  return { banned: r?.banned ?? false, birth_date: r?.birth_date ?? null, frozen: r?.frozen ?? false }
+}
+
+/** Sets my date of birth (once; the server derives the age and enforces 18+). */
+export async function setBirthDate(id: string, birthDate: string) {
+  const { error } = await supabase.from('profiles').update({ birth_date: birthDate }).eq('id', id)
+  if (error) throw error
+}
+
+/** Freezes/unfreezes my profile (hidden from the feed; open chats stay). */
+export async function setFrozen(id: string, frozen: boolean) {
+  const { error } = await supabase.from('profiles').update({ frozen }).eq('id', id)
+  if (error) throw error
+}
+
+/** Whether an email already has an account ('exists') or belongs to a deleted banned account ('banned'). */
+export async function checkEmail(email: string): Promise<'free' | 'exists' | 'banned'> {
+  const { data, error } = await supabase.rpc('check_email', { p_email: email })
+  if (error) throw error
+  return data as 'free' | 'exists' | 'banned'
+}
+
+export type BlockState = { i_blocked: boolean; blocked_me: boolean }
+
+export async function getBlockState(otherId: string): Promise<BlockState> {
+  const { data, error } = await supabase.rpc('block_state', { p_other: otherId })
+  if (error) throw error
+  return { i_blocked: data?.[0]?.i_blocked ?? false, blocked_me: data?.[0]?.blocked_me ?? false }
+}
+
+/** Blocks or unblocks a user. Returns true when they are now blocked. */
+export async function toggleBlock(otherId: string): Promise<boolean> {
+  const { data, error } = await supabase.rpc('toggle_block', { p_user: otherId })
+  if (error) throw error
+  return data as boolean
 }
 
 export async function saveProfile(id: string, input: ProfileInput, exists: boolean) {
@@ -90,12 +127,16 @@ export async function photoUrls(paths: string[]): Promise<Record<string, string>
   return Object.fromEntries(paths.flatMap((p) => (urlCache.has(p) ? [[p, urlCache.get(p)!.url]] : [])))
 }
 
-/** Profiles in sign-up order (no ranking), excluding me, only those with at least one photo. */
+/** Profiles in sign-up order (no ranking), excluding me, frozen and blocked (either way), only those with a photo. */
 export async function getFeedPage(myId: string, offset: number, limit = 20): Promise<Profile[]> {
+  const hidden = await supabase.rpc('my_hidden_ids')
+  if (hidden.error) throw hidden.error
+  const exclude = [myId, ...((hidden.data ?? []) as string[])]
   const { data, error } = await supabase
     .from('profiles')
     .select(`${PUBLIC_PROFILE_COLUMNS}, photos!inner(id, path, position)`)
-    .neq('id', myId)
+    .not('id', 'in', `(${exclude.join(',')})`)
+    .eq('frozen', false)
     .order('created_at', { ascending: true })
     .order('id', { ascending: true })
     .range(offset, offset + limit - 1)

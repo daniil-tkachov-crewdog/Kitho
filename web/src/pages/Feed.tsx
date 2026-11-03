@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
-import { errorText, getFeedPage, getSentState, likeProfile, photoUrls, sendMessage, type Profile } from '../lib/api'
+import { errorText, getFeedPage, setFrozen, getSentState, likeProfile, photoUrls, sendMessage, type Profile } from '../lib/api'
 import PhotoCarousel from '../components/PhotoCarousel'
 import Modal from '../components/Modal'
 import { HeartIcon, PinIcon } from '../components/Icons'
@@ -21,8 +21,40 @@ function readPos(uid: string): number {
 type Batch = { start: number; items: Profile[]; liked: Set<string>; chats: Map<string, string> }
 
 export default function Feed() {
-  const { session } = useAuth()
-  const uid = session!.user.id
+  const { session, status } = useAuth()
+  if (status?.frozen) return <FrozenNotice />
+  return <FeedInner uid={session!.user.id} />
+}
+
+/** Frozen users don't browse; they see how to come back. */
+function FrozenNotice() {
+  const { session, refreshProfile } = useAuth()
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  async function unfreeze() {
+    setBusy(true)
+    setError('')
+    try {
+      await setFrozen(session!.user.id, false)
+      await refreshProfile()
+    } catch (e) {
+      setError(errorText(e))
+      setBusy(false)
+    }
+  }
+  return (
+    <div className="feed-wrap">
+      <div className="empty panel">
+        <h2>Your profile is frozen</h2>
+        <p className="muted">You’re hidden from Discover. Your open chats still work in Inbox.</p>
+        {error && <div className="alert alert-error">{error}</div>}
+        <button className="btn btn-primary" disabled={busy} onClick={unfreeze}>{busy ? 'Unfreezing…' : 'Unfreeze profile'}</button>
+      </div>
+    </div>
+  )
+}
+
+function FeedInner({ uid }: { uid: string }) {
   const navigate = useNavigate()
   const [pos, setPos] = useState(() => readPos(uid))
   const [batch, setBatch] = useState<Batch | null>(null)

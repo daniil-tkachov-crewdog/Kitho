@@ -13,6 +13,9 @@ export async function deletePhotos(admin: SupabaseClient, profileId: string): Pr
 }
 
 export async function deleteUserData(admin: SupabaseClient, userId: string): Promise<string | null> {
+  // Banned accounts: keep a hash of the email so it can't be used to sign up again.
+  const { error: rememberError } = await admin.rpc('remember_banned_email', { p_user: userId })
+  if (rememberError) return 'Could not delete account'
   const photosError = await deletePhotos(admin, userId)
   if (photosError) return photosError
   const { error } = await admin.auth.admin.deleteUser(userId)

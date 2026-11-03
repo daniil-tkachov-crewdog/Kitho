@@ -1,12 +1,14 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from './supabase'
-import { getMyBanned, getProfile, type Profile } from './api'
+import { getMyStatus, getProfile, type MyStatus, type Profile } from './api'
 
 type AuthState = {
   session: Session | null
   profile: Profile | null
   banned: boolean
+  /** My private status (birth date, frozen). Null while loading or signed out. */
+  status: MyStatus | null
   /** True until we know both the session and (if signed in) that user's profile. */
   loading: boolean
   refreshProfile: () => Promise<void>
@@ -21,11 +23,11 @@ export function isProfileComplete(p: Profile | null): boolean {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false)
   const [session, setSession] = useState<Session | null>(null)
-  const [loaded, setLoaded] = useState<{ userId: string; profile: Profile | null; banned: boolean } | null>(null)
+  const [loaded, setLoaded] = useState<{ userId: string; profile: Profile | null; status: MyStatus | null } | null>(null)
 
   const loadProfile = useCallback(async (userId: string) => {
-    const [profile, banned] = await Promise.all([getProfile(userId).catch(() => null), getMyBanned().catch(() => false)])
-    setLoaded({ userId, profile, banned })
+    const [profile, status] = await Promise.all([getProfile(userId).catch(() => null), getMyStatus().catch(() => null)])
+    setLoaded({ userId, profile, status })
   }, [])
 
   useEffect(() => {
@@ -54,7 +56,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         session,
         profile: userId && loaded?.userId === userId ? loaded.profile : null,
-        banned: !!userId && loaded?.userId === userId && loaded.banned,
+        banned: !!userId && loaded?.userId === userId && !!loaded.status?.banned,
+        status: userId && loaded?.userId === userId ? loaded.status : null,
         loading: !ready || !profileReady,
         refreshProfile,
       }}

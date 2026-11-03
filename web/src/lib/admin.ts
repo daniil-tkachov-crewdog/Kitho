@@ -49,7 +49,9 @@ export async function adminLogin(email: string, password: string) {
 
 export type Visit = { id: string; who: string; location: string; device: string; browser: string; created_at: string }
 export type Stats = { visitors: number; users: number; reports: number }
-export const getStats = () => call<{ stats: Stats; visits: Visit[] }>('admin-stats')
+export type StatsPeriod = '24h' | '7d' | '1m' | '6m'
+export const getStats = (period: StatsPeriod = '24h', offset = 0) =>
+  call<{ stats: Stats; visits: Visit[]; hasMore: boolean }>('admin-stats', { period, offset })
 
 export type AdminUser = {
   id: string
@@ -65,6 +67,7 @@ export type AdminUser = {
   restricted_manual: boolean
   banned: boolean
   fake: boolean
+  frozen: boolean
   created_at: string
 }
 export const getUsers = () => call<{ users: AdminUser[] }>('admin-users').then((r) => r.users)

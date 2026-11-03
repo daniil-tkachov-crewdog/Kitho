@@ -52,6 +52,7 @@ export default function UsersTab({ onExpired, onMessage }: { onExpired: () => vo
                   <td>
                     {u.name ?? <span className="muted">No profile yet</span>}
                     {u.fake && <span className="fake-badge">Fake</span>}
+                    {u.frozen && <span className="frozen-badge">Frozen</span>}
                   </td>
                   <td>{u.email ?? '—'}</td>
                   <td>{u.phone || '—'}</td>
