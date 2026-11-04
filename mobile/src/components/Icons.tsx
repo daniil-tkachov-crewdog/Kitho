@@ -37,6 +37,15 @@ export const AppleIcon = ({ size = 18, color = colors.text }: P) => (
 export const GearIcon = ({ size = 20, color }: P) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" {...stroke(color)}><Circle cx="12" cy="12" r="3" /><Path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" /></Svg>
 )
+export const ChevronLeftIcon = ({ size = 24, color }: P) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" {...stroke(color)}><Path d="M15 6l-6 6 6 6" /></Svg>
+)
+export const AlertIcon = ({ size = 20, color }: P) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" {...stroke(color)}><Circle cx="12" cy="12" r="9" /><Path d="M12 7.5v5.5" /><Path d="M12 16.5h.01" /></Svg>
+)
+export const BanIcon = ({ size = 20, color }: P) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" {...stroke(color)}><Circle cx="12" cy="12" r="9" /><Path d="M5.6 5.6l12.8 12.8" /></Svg>
+)
 
 /** Logo mark: white heart in an accent circle (web .logo-mark). */
 export const LogoMark = ({ size = 32 }: P) => (

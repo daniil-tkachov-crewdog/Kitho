@@ -3,12 +3,12 @@ import { useState } from 'react'
 import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
-import { supabase } from '../../lib/supabase'
-import { deleteAccount, errorText } from '../../lib/api'
-import { WEBSITE } from '../../lib/config'
-import { colors } from '../../lib/theme'
-import { Alert, Button, Field, H, Input, Panel, T } from '../../components/ui'
-import Sheet from '../../components/Sheet'
+import { supabase } from '../../../lib/supabase'
+import { deleteAccount, errorText } from '../../../lib/api'
+import { WEBSITE } from '../../../lib/config'
+import { colors } from '../../../lib/theme'
+import { Alert, Button, Field, H, Input, Panel, T } from '../../../components/ui'
+import Sheet from '../../../components/Sheet'
 
 const LEGAL = [
   { label: 'Terms of Use', path: '/terms' },

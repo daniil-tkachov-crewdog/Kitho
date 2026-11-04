@@ -1,16 +1,16 @@
 // Port of web/src/pages/Feed.tsx. Swipe left = Sweep; tap photo sides = prev/next photo.
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Alert as RNAlert, Animated, Linking, PanResponder, ScrollView, StyleSheet, View } from 'react-native'
+import { Animated, PanResponder, ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { useAuth } from '../../lib/auth'
-import { errorText, getFeedPage, getSentState, likeProfile, photoUrls, sendMessage, setFrozen, type Profile } from '../../lib/api'
-import { WEBSITE } from '../../lib/config'
-import { colors, radius } from '../../lib/theme'
-import { HeartIcon, PinIcon } from '../../components/Icons'
-import PhotoCarousel from '../../components/PhotoCarousel'
-import Sheet from '../../components/Sheet'
-import { Alert, Button, Field, H, Input, Panel, Spinner, T } from '../../components/ui'
+import { router } from 'expo-router'
+import { useAuth } from '../../../lib/auth'
+import { errorText, getFeedPage, getSentState, likeProfile, photoUrls, sendMessage, setFrozen, type Profile } from '../../../lib/api'
+import { colors } from '../../../lib/theme'
+import { HeartIcon } from '../../../components/Icons'
+import ProfileCard, { actionStyle } from '../../../components/ProfileCard'
+import GreetingModal from '../../../components/GreetingModal'
+import { Alert, Button, H, Panel, Spinner, T } from '../../../components/ui'
 
 const PAGE = 20
 const posKey = (uid: string) => `kitho.feedPos.${uid}`
@@ -164,13 +164,6 @@ function FeedInner({ uid, initialPos }: { uid: string; initialPos: number }) {
     }
   }
 
-  function openChat(chatId: string) {
-    RNAlert.alert('Chats are coming soon', 'For now, continue this chat on kitho.co.uk.', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Open website', onPress: () => void Linking.openURL(`${WEBSITE}/chat/${chatId}`) },
-    ])
-  }
-
   if (error && !batch) return <View style={s.centerWrap}><Alert kind="error">{error}</Alert></View>
   if (!batch || batch.start !== start) return <Spinner />
 
@@ -193,25 +186,25 @@ function FeedInner({ uid, initialPos }: { uid: string; initialPos: number }) {
   return (
     <ScrollView contentContainerStyle={s.scroll}>
       {!!error && <Alert kind="error">{error}</Alert>}
-      <Animated.View style={[s.card, { transform: [{ translateX: dx }, { rotate }] }]} {...pan.panHandlers}>
-        <PhotoCarousel urls={urls} />
-        <View style={s.body}>
-          <H size={26} style={{ marginBottom: 0 }}>{current.name}, <T size={26} muted>{current.age}</T></H>
-          <View style={s.loc}><PinIcon /><T muted>{current.location}</T></View>
-          {!!current.description && <T style={{ marginTop: 10, color: colors.text2 }}>{current.description}</T>}
-          <View style={s.actions}>
-            <Button style={s.action} kind="ghost" title="Sweep" onPress={next} />
-            <Button
-              style={[s.action, liked && { borderColor: colors.accent, backgroundColor: colors.accentSoft }]}
-              kind="ghost"
-              title={liked ? 'Liked' : 'Like'}
-              icon={<HeartIcon color={colors.accent} fill={liked ? colors.accent : 'none'} />}
-              onPress={onLike}
-              disabled={busy || liked}
-            />
-            <Button style={s.action} title={chatId ? 'Chat' : 'Message'} onPress={() => (chatId ? openChat(chatId) : setMsgOpen(true))} />
-          </View>
-        </View>
+      <Animated.View style={{ transform: [{ translateX: dx }, { rotate }] }} {...pan.panHandlers}>
+        <ProfileCard
+          profile={current}
+          urls={urls}
+          actions={
+            <>
+              <Button style={actionStyle} kind="ghost" title="Sweep" onPress={next} />
+              <Button
+                style={[actionStyle, liked && { borderColor: colors.accent, backgroundColor: colors.accentSoft }]}
+                kind="ghost"
+                title={liked ? 'Liked' : 'Like'}
+                icon={<HeartIcon color={colors.accent} fill={liked ? colors.accent : 'none'} />}
+                onPress={onLike}
+                disabled={busy || liked}
+              />
+              <Button style={actionStyle} title={chatId ? 'Chat' : 'Message'} onPress={() => (chatId ? router.push(`/chat/${chatId}`) : setMsgOpen(true))} />
+            </>
+          }
+        />
       </Animated.View>
       {msgOpen && (
         <GreetingModal
@@ -228,46 +221,9 @@ function FeedInner({ uid, initialPos }: { uid: string; initialPos: number }) {
   )
 }
 
-function GreetingModal({ name, onClose, onSend }: { name: string; onClose: () => void; onSend: (body: string) => Promise<void> }) {
-  const [body, setBody] = useState('')
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState('')
-
-  async function submit() {
-    setBusy(true)
-    setError('')
-    try {
-      await onSend(body.trim())
-    } catch (err) {
-      setError(errorText(err))
-      setBusy(false)
-    }
-  }
-
-  return (
-    <Sheet title={`Say hello to ${name}`} onClose={onClose}>
-      <T muted style={{ marginBottom: 12 }}>Send a letter to start a chat. You can write again once they reply.</T>
-      {!!error && <Alert kind="error">{error}</Alert>}
-      <Field>
-        <Input multiline maxLength={2000} value={body} onChangeText={setBody} placeholder={`Hi ${name}! …`} autoFocus />
-        <T muted size={12} style={{ textAlign: 'right', marginTop: 4 }}>{body.length}/2000</T>
-      </Field>
-      <View style={{ flexDirection: 'row', gap: 10 }}>
-        <Button style={{ flex: 1 }} kind="ghost" title="Cancel" onPress={onClose} />
-        <Button style={{ flex: 1 }} title="Send" onPress={submit} disabled={busy || !body.trim()} />
-      </View>
-    </Sheet>
-  )
-}
-
 const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   title: { paddingHorizontal: 16, paddingTop: 8 },
   centerWrap: { flex: 1, justifyContent: 'center', padding: 16 },
   scroll: { padding: 16, paddingTop: 4 },
-  card: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.card, overflow: 'hidden' },
-  body: { padding: 18 },
-  loc: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 },
-  actions: { flexDirection: 'row', gap: 8, marginTop: 18 },
-  action: { flex: 1, paddingHorizontal: 8 },
 })

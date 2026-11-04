@@ -1,17 +1,18 @@
-// Port of AppLayout in web/src/components/Layouts.tsx: guards + bottom tabs.
+// Port of AppLayout in web/src/components/Layouts.tsx: guards for the signed-in area (tabs + chat screens).
 import { useState } from 'react'
 import { View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { Redirect, useSegments } from 'expo-router'
-import { Tabs } from 'expo-router/tabs'
+import { Redirect, Stack, useSegments } from 'expo-router'
 import { isProfileComplete, useAuth } from '../../lib/auth'
 import { ageFrom, defaultDob, dobToIso, errorText, setBirthDate, type Dob } from '../../lib/api'
 import { supabase } from '../../lib/supabase'
-import { colors, font } from '../../lib/theme'
-import { CompassIcon, InboxIcon, LogoMark, UserIcon } from '../../components/Icons'
+import { colors } from '../../lib/theme'
+import { LogoMark } from '../../components/Icons'
 import { Alert, Button, H, Panel, Spinner, T } from '../../components/ui'
 import Sheet from '../../components/Sheet'
 import DobPicker from '../../components/DobPicker'
+
+export const unstable_settings = { initialRouteName: '(tabs)' }
 
 export default function AppLayout() {
   const { session, profile, status, banned, loading } = useAuth()
@@ -25,21 +26,7 @@ export default function AppLayout() {
 
   return (
     <>
-      <Tabs
-        screenOptions={{
-          headerShown: false,
-          sceneStyle: { backgroundColor: colors.bg },
-          tabBarActiveTintColor: colors.text,
-          tabBarInactiveTintColor: colors.muted,
-          tabBarStyle: { backgroundColor: colors.bg, borderTopColor: colors.border },
-          tabBarLabelStyle: { fontFamily: font.medium, fontSize: 11 },
-        }}
-      >
-        <Tabs.Screen name="feed" options={{ title: 'Discover', tabBarIcon: ({ color }) => <CompassIcon color={color as string} /> }} />
-        <Tabs.Screen name="inbox" options={{ title: 'Inbox', tabBarIcon: ({ color }) => <InboxIcon color={color as string} /> }} />
-        <Tabs.Screen name="profile" options={{ title: 'Profile', tabBarIcon: ({ color }) => <UserIcon color={color as string} /> }} />
-        <Tabs.Screen name="settings" options={{ href: null }} />
-      </Tabs>
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }} />
       {profile && status && !status.birth_date && <DobPrompt />}
     </>
   )

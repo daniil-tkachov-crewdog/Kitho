@@ -67,14 +67,15 @@ export function Spinner() {
   )
 }
 
-export function T({ children, style, muted, weight = 'regular', size = 15 }: {
+export function T({ children, style, muted, weight = 'regular', size = 15, numberOfLines }: {
   children: ReactNode
   style?: StyleProp<TextStyle>
   muted?: boolean
   weight?: keyof typeof font
   size?: number
+  numberOfLines?: number
 }) {
-  return <Text style={[{ fontFamily: font[weight], fontSize: size, color: muted ? colors.muted : colors.text, lineHeight: size * 1.45 }, style]}>{children}</Text>
+  return <Text numberOfLines={numberOfLines} style={[{ fontFamily: font[weight], fontSize: size, color: muted ? colors.muted : colors.text, lineHeight: size * 1.45 }, style]}>{children}</Text>
 }
 
 export function H({ children, size = 26, style }: { children: ReactNode; size?: number; style?: StyleProp<TextStyle> }) {

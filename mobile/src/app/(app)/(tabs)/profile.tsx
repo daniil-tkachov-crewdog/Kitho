@@ -5,16 +5,16 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { Image } from 'expo-image'
 import { router } from 'expo-router'
 import * as ImagePicker from 'expo-image-picker'
-import { isProfileComplete, useAuth } from '../../lib/auth'
+import { isProfileComplete, useAuth } from '../../../lib/auth'
 import {
   MAX_PHOTOS, ageFrom, defaultDob, deletePhoto, dobToIso, errorText, getMyPhone, photoUrls, saveProfile, setFrozen, uploadPhoto,
   type Dob, type Photo,
-} from '../../lib/api'
-import { prepareImage, type PreparedImage } from '../../lib/image'
-import { colors, radius } from '../../lib/theme'
-import { GearIcon, LockIcon } from '../../components/Icons'
-import DobPicker from '../../components/DobPicker'
-import { Alert, Button, Field, H, Input, Panel, T } from '../../components/ui'
+} from '../../../lib/api'
+import { prepareImage, type PreparedImage } from '../../../lib/image'
+import { colors, radius } from '../../../lib/theme'
+import { GearIcon, LockIcon } from '../../../components/Icons'
+import DobPicker from '../../../components/DobPicker'
+import { Alert, Button, Field, H, Input, Panel, T } from '../../../components/ui'
 
 type Slot = { kind: 'existing'; photo: Photo; url: string } | ({ kind: 'new' } & PreparedImage) | null
 
