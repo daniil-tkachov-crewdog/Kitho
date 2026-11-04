@@ -83,7 +83,7 @@ export default function Profile() {
         const pos = i + 1
         const orig = existing.find((p) => p.position === pos)
         const slot = slots[i]
-        if (slot?.kind === 'new') await uploadPhoto(uid, slot.file, pos, orig)
+        if (slot?.kind === 'new') await uploadPhoto(uid, slot.file, slot.file.type, pos, orig)
         else if (!slot && orig) await deletePhoto(orig)
       }
       const firstTime = !isProfileComplete(profile)

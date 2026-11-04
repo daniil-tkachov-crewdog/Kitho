@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "Kitho",
+    "slug": "kitho",
+    "version": "1.0.0",
+    "scheme": "kitho",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.kitho.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Kitho uses the camera so you can take profile photos.",
+        "NSPhotoLibraryUsageDescription": "Kitho needs access to your photos so you can add them to your profile."
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-web-browser",
+      "expo-image",
+      "expo-font",
+      "@react-native-community/datetimepicker",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Kitho needs access to your photos so you can add them to your profile.",
+          "cameraPermission": "Kitho uses the camera so you can take profile photos."
+        }
+      ]
+    ]
+  }
+}

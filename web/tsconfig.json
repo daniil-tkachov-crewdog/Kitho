@@ -11,7 +11,12 @@
     "isolatedModules": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "types": ["vite/client"]
+    "types": ["vite/client"],
+    "baseUrl": ".",
+    "paths": {
+      "@kitho/shared": ["../shared/src"],
+      "@supabase/supabase-js": ["./node_modules/@supabase/supabase-js"]
+    }
   },
-  "include": ["src"]
+  "include": ["src", "../shared/src"]
 }

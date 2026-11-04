@@ -16,9 +16,7 @@ type AuthState = {
 
 const AuthContext = createContext<AuthState | null>(null)
 
-export function isProfileComplete(p: Profile | null): boolean {
-  return !!p && !!p.name && !!p.age && !!p.location && p.photos.length > 0
-}
+export { isProfileComplete } from './api'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false)

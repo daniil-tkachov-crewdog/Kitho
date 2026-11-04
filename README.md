@@ -7,6 +7,8 @@ Free dating website. One profile per person, no paywalls, no algorithms.
 ## Repo layout
 
 - `web/` — frontend (React app + `server.mjs` static server for Render).
+- `mobile/` — iOS app (Expo + Expo Router). Same Supabase project as web; no admin panel.
+- `shared/` — Supabase queries, types and helpers used by both `web/` and `mobile/` (imported as `@kitho/shared`).
 - `supabase/migrations/` — database schema.
 - `supabase/functions/` — backend API, one folder per function (`_shared/` holds common helpers).
 
@@ -18,6 +20,18 @@ cp .env.example .env
 npm install
 npm run dev
 ```
+
+## Run the iOS app (Expo Go)
+
+```bash
+cd mobile
+cp .env.example .env
+npm install
+npx expo start
+```
+
+Scan the QR code with the iPhone camera (Expo Go installed). Supabase → Authentication → URL Configuration →
+Redirect URLs must include `kitho://**` and `exp://**` for Google sign-in.
 
 ## Deploy (Render web service)
 
