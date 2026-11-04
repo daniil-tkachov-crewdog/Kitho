@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Returning to Kitho</title>
+<style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#FAF8F5;color:#1A1719;font:16px system-ui,-apple-system,sans-serif}</style>
+</head>
+<body>
+<p id="msg">Returning to the Kitho app…</p>
+<script>
+// Google sign-in bounce for the iOS app: Supabase redirects here (kitho.co.uk is always allowed),
+// and this page forwards the auth result to the app (?to=kitho://… or exp://… in Expo Go).
+(function () {
+  var params = new URLSearchParams(location.search)
+  var to = params.get('to') || ''
+  if (!/^(kitho|exp):\/\//.test(to)) {
+    document.getElementById('msg').textContent = 'Invalid link.'
+    return
+  }
+  params.delete('to')
+  var qs = params.toString()
+  location.replace(to + (qs ? (to.indexOf('?') < 0 ? '?' : '&') + qs : '') + location.hash)
+})()
+</script>
+</body>
+</html>
