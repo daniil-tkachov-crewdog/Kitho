@@ -30,7 +30,16 @@
           "cameraPermission": "Kitho uses the camera so you can take profile photos."
         }
       ],
-      "expo-notifications"
+      "expo-notifications",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 160,
+          "resizeMode": "contain",
+          "backgroundColor": "#FAF8F5"
+        }
+      ]
     ]
   }
 }
