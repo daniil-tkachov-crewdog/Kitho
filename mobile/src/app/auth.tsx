@@ -1,12 +1,12 @@
 // Port of web/src/pages/Auth.tsx.
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { KeyboardAvoidingView, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Redirect, router } from 'expo-router'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
 import { checkEmail, errorText } from '../lib/api'
-import { signInWithGoogle } from '../lib/oauth'
+import { isAppleSignInAvailable, signInWithApple, signInWithGoogle } from '../lib/oauth'
 import { WEBSITE } from '../lib/config'
 import { colors, font, radius } from '../lib/theme'
 import { AppleIcon, GoogleIcon, LogoMark } from '../components/Icons'
@@ -24,6 +24,11 @@ export default function Auth() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [info, setInfo] = useState('')
+  const [appleAvailable, setAppleAvailable] = useState(false)
+
+  useEffect(() => {
+    isAppleSignInAvailable().then(setAppleAvailable)
+  }, [])
 
   /** Switches tab and clears messages; `notice` is shown on the new tab. */
   function switchMode(next: Mode, notice = '') {
@@ -91,6 +96,11 @@ export default function Auth() {
   const onGoogle = () =>
     run(async () => {
       if (await signInWithGoogle()) router.replace('/feed')
+    })
+
+  const onApple = () =>
+    run(async () => {
+      if (await signInWithApple()) router.replace('/feed')
     })
 
   const onResend = () =>
@@ -171,8 +181,9 @@ export default function Auth() {
                 </View>
                 <View style={{ gap: 10 }}>
                   <Button kind="ghost" title={`${verb} with Google`} icon={<GoogleIcon />} onPress={onGoogle} disabled={busy} />
-                  <Button kind="ghost" title={`${verb} with Apple`} icon={<AppleIcon />} disabled />
-                  <T muted size={13} style={s.center}>Apple sign-in coming soon.</T>
+                  {appleAvailable && (
+                    <Button kind="ghost" title={`${verb} with Apple`} icon={<AppleIcon />} onPress={onApple} disabled={busy} />
+                  )}
                 </View>
                 {mode === 'signup' && (
                   <T muted size={13} style={[s.center, { marginTop: 16 }]}>
