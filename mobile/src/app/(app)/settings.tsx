@@ -3,13 +3,13 @@ import { useState } from 'react'
 import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
-import { supabase } from '../../../lib/supabase'
-import { disablePushForThisDevice } from '../../../lib/push'
-import { deleteAccount, errorText } from '../../../lib/api'
-import { WEBSITE } from '../../../lib/config'
-import { colors } from '../../../lib/theme'
-import { Alert, Button, Field, H, Input, Panel, T } from '../../../components/ui'
-import Sheet from '../../../components/Sheet'
+import { supabase } from '../../lib/supabase'
+import { disablePushForThisDevice } from '../../lib/push'
+import { deleteAccount, errorText } from '../../lib/api'
+import { WEBSITE } from '../../lib/config'
+import { colors } from '../../lib/theme'
+import { Alert, Button, Field, H, Input, Panel, T } from '../../components/ui'
+import Sheet from '../../components/Sheet'
 
 const LEGAL = [
   { label: 'Terms of Use', path: '/terms' },
@@ -49,7 +49,7 @@ export default function Settings() {
       <ScrollView contentContainerStyle={s.scroll}>
         <View style={s.head}>
           <H style={{ marginBottom: 0 }}>Settings</H>
-          <Button small kind="ghost" title="Back" onPress={() => router.navigate('/profile')} />
+          <Button small kind="ghost" title="Back" onPress={() => (router.canGoBack() ? router.back() : router.replace('/profile'))} />
         </View>
 
         <Panel style={s.row}>

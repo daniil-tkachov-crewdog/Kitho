@@ -158,7 +158,7 @@ export default function Profile() {
           <View style={s.head}>
             <H style={{ marginBottom: 0, flexShrink: 1 }}>{profile ? 'My profile' : 'Create your profile'}</H>
             <View style={s.headBtns}>
-              <Pressable style={s.iconBtn} onPress={() => router.navigate('/settings')} accessibilityLabel="Settings"><GearIcon /></Pressable>
+              <Pressable style={s.iconBtn} onPress={() => router.push('/settings')} accessibilityLabel="Settings"><GearIcon /></Pressable>
               {editing ? (
                 <>
                   {profile && <Button small kind="ghost" title="Cancel" onPress={onCancel} disabled={busy} />}

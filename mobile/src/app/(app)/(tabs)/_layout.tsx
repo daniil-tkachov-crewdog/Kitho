@@ -20,7 +20,6 @@ export default function TabsLayout() {
       <Tabs.Screen name="feed" options={{ title: 'Discover', tabBarIcon: ({ color }) => <CompassIcon color={color as string} /> }} />
       <Tabs.Screen name="inbox" options={{ title: 'Inbox', tabBarBadge: unread > 0 ? unread : undefined, tabBarIcon: ({ color }) => <InboxIcon color={color as string} /> }} />
       <Tabs.Screen name="profile" options={{ title: 'Profile', tabBarIcon: ({ color }) => <UserIcon color={color as string} /> }} />
-      <Tabs.Screen name="settings" options={{ href: null }} />
     </Tabs>
   )
 }
