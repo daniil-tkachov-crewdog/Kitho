@@ -4,6 +4,7 @@ import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
 import { supabase } from '../../../lib/supabase'
+import { disablePushForThisDevice } from '../../../lib/push'
 import { deleteAccount, errorText } from '../../../lib/api'
 import { WEBSITE } from '../../../lib/config'
 import { colors } from '../../../lib/theme'
@@ -25,6 +26,7 @@ export default function Settings() {
   const [error, setError] = useState('')
 
   async function logout() {
+    await disablePushForThisDevice()
     await supabase.auth.signOut()
     router.replace('/auth')
   }

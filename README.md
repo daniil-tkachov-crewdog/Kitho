@@ -33,6 +33,10 @@ npx expo start
 Scan the QR code with the iPhone camera (Expo Go installed). Supabase → Authentication → URL Configuration →
 Redirect URLs must include `kitho://**` and `exp://**` for Google sign-in.
 
+Push notifications: run `npx eas init` once in `mobile/` (adds the EAS project id to `app.json`), and apply
+`supabase/migrations/20261109000001_push_notifications.sql`. Pushes go through the Expo push service via `pg_net`
+triggers on `messages`, `likes` and `admin_messages`; users choose which ones they get in Profile → Notifications.
+
 ## Deploy (Render web service)
 
 - Root Directory: `web`

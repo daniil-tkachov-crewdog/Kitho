@@ -14,6 +14,7 @@ import { prepareImage, type PreparedImage } from '../../../lib/image'
 import { colors, radius } from '../../../lib/theme'
 import { GearIcon, LockIcon } from '../../../components/Icons'
 import DobPicker from '../../../components/DobPicker'
+import NotificationSettingsPanel from '../../../components/NotificationSettingsPanel'
 import { Alert, Button, Field, H, Input, Panel, T } from '../../../components/ui'
 
 type Slot = { kind: 'existing'; photo: Photo; url: string } | ({ kind: 'new' } & PreparedImage) | null
@@ -247,6 +248,8 @@ export default function Profile() {
               </>
             )}
           </View>
+
+          {profile && <NotificationSettingsPanel userId={uid} />}
 
           {profile && (
             <Panel style={s.freeze}>

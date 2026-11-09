@@ -6,6 +6,7 @@ import { Redirect, Stack, useSegments } from 'expo-router'
 import { isProfileComplete, useAuth } from '../../lib/auth'
 import { ageFrom, defaultDob, dobToIso, errorText, setBirthDate, type Dob } from '../../lib/api'
 import { supabase } from '../../lib/supabase'
+import { usePushSetup } from '../../lib/usePushSetup'
 import { colors } from '../../lib/theme'
 import { LogoMark } from '../../components/Icons'
 import { Alert, Button, H, Panel, Spinner, T } from '../../components/ui'
@@ -18,11 +19,13 @@ export default function AppLayout() {
   const { session, profile, status, banned, loading } = useAuth()
   const segments = useSegments() as string[]
   const screen = segments[segments.length - 1]
+  const complete = isProfileComplete(profile)
+  usePushSetup(!loading && !!session && !banned && complete)
 
   if (loading) return <Spinner />
   if (!session) return <Redirect href="/auth" />
   if (banned) return <Suspended />
-  if (!isProfileComplete(profile) && screen !== 'profile' && screen !== 'settings') return <Redirect href="/profile" />
+  if (!complete && screen !== 'profile' && screen !== 'settings') return <Redirect href="/profile" />
 
   return (
     <>

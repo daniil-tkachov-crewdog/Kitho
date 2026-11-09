@@ -397,3 +397,29 @@ export function errorText(e: unknown): string {
   if (e && typeof e === 'object' && 'message' in e) return String((e as { message: unknown }).message)
   return 'Something went wrong. Please try again.'
 }
+
+// ── Push notifications (iOS app) ────────────────────────────────────────────────────────
+export type NotificationSettings = { messages: boolean; letters: boolean; likes: boolean; admin: boolean }
+export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = { messages: true, letters: true, likes: true, admin: true }
+
+export async function registerPushToken(token: string, platform = 'ios') {
+  const { error } = await sb().rpc('register_push_token', { p_token: token, p_platform: platform })
+  if (error) throw error
+}
+
+export async function unregisterPushToken(token: string) {
+  const { error } = await sb().rpc('unregister_push_token', { p_token: token })
+  if (error) throw error
+}
+
+/** My notification settings (everything on when I haven't saved any). */
+export async function getNotificationSettings(): Promise<NotificationSettings> {
+  const { data, error } = await sb().from('notification_settings').select('messages, letters, likes, admin').maybeSingle()
+  if (error) throw error
+  return (data as NotificationSettings | null) ?? DEFAULT_NOTIFICATION_SETTINGS
+}
+
+export async function saveNotificationSettings(userId: string, s: NotificationSettings) {
+  const { error } = await sb().from('notification_settings').upsert({ user_id: userId, ...s, updated_at: new Date().toISOString() })
+  if (error) throw error
+}
